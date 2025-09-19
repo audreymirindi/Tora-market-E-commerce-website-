@@ -1,3 +1,19 @@
+<?php
+session_start();
+
+require_once("../php/config.php");
+require_once("../php/view_format.php");
+
+if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_id_session'])) {
+    header("Location: ./");
+    exit();
+}
+
+$_SESSION['user_unique_id_session'] = $_COOKIE['user_unique_id_session'];
+
+$id = htmlspecialchars($_GET["unique_id"]);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -167,28 +183,96 @@
 
             </div>
         </div>
-        <div class="mobile-navigation-bottom">
+                <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
+                <!-- Home Button -->
                 <div class="icon-1">
-                    <a href="./"><button id="home-btn"><i class="ri-home-4-line"></i></button></a>
+                    <a href="./index.php"><button id="home-btn"><i class="ri-home-4-line"></i></button></a>
                     <label for="">Acceuille</label>
                 </div>
-                <div class="icon-1">
-                    <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
+
+                <!-- Vendre Button -->
+                <?php
+                if (isset($_COOKIE['user_unique_id_session'])) {
+                    $sql_acc = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
+                    $query_acc = $pdo->prepare($sql_acc);
+                    $query_acc->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
+                    $res_acc = $query_acc->fetch(PDO::FETCH_ASSOC);
+
+                    if ($res_acc['user_category'] == "vendeur" || $res_acc['user_category'] == "entreprise") {
+                        echo '<div class="icon-1">
+                        <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
+                        <label for="">Vendre</label>
+                    </div>';
+                    } else {
+                        echo '<div class="icon-1" style="color:gray;">
+                        <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
+                        <label for="">Vendre</label>
+                    </div>';
+                    }
+                } else {
+                    echo '<div class="icon-1">
+                    <a href="./login.php"><button><i class="ri-add-circle-line"></i></button></a>
                     <label for="">Vendre</label>
-                </div>
-                <div class="icon-1">
+                </div>';
+                }
+                ?>
+
+                <!-- Chat Button -->
+                <?php
+                if (isset($_COOKIE['user_unique_id_session'])) {
+                    // Count all unread messages for the logged-in user
+                    $sql_unread = "SELECT COUNT(*) AS total_unread 
+                           FROM conversation 
+                           WHERE receiver_unique_id = :current_user 
+                             AND read_mark = 1";
+                    $query_unread = $pdo->prepare($sql_unread);
+                    $query_unread->execute([":current_user" => $_COOKIE['user_unique_id_session']]);
+                    $res_unread = $query_unread->fetch(PDO::FETCH_ASSOC);
+                    $total_unread = $res_unread['total_unread'];
+
+                    echo '<div class="icon-1">
                     <a href="./chat.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i>';
+                    if ($total_unread > 0) {
+                        // Cap the badge at +9
+                        if ($total_unread > 9) {
+                            echo '<span class="chat-num">+9</span>';
+                        } else {
+                            echo '<span class="chat-num">' . $total_unread . '</span>';
+                        }
+                    }
+                    echo '      </button>
                     </a>
                     <label for="">Chater</label>
-                </div>
-                <div class="icon-1">
+                </div>';
+                } else {
+                    echo '<div class="icon-1">
+                    <a href="./login.php">
+                        <button><i class="ri-chat-new-fill"></i></button>
+                    </a>
+                    <label for="">Chater</label>
+                </div>';
+                }
+                ?>
+
+                <!-- Profile Button -->
+                <?php
+                if (isset($_COOKIE['user_unique_id_session'])) {
+                    echo '<div class="icon-1">
+                    <a href="./profile.php"><button><i class="ri-user-add-line"></i></button></a>
+                    <label for="">Compte</label>
+                </div>';
+                } else {
+                    echo '<div class="icon-1">
                     <a href="./login.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                </div>
+                </div>';
+                }
+                ?>
             </div>
         </div>
+        <!-- end of mobile navigation -->
         <!--  ====================================================================================== -->
         <p id="copy-right-conns">
             &copy;2025 Tora Corporation. Tout droit réservé.
