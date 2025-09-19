@@ -11,8 +11,6 @@ if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_
 
 $_SESSION['user_unique_id_session'] = $_COOKIE['user_unique_id_session'];
 
-$id = htmlspecialchars($_GET["unique_id"]);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
