@@ -1,53 +1,27 @@
 <?php
 session_start();
+
 require_once("./php/config.php");
 require_once("./php/view_format.php");
-
-
-$current_user = $_COOKIE['user_unique_id_session'];
-$other_user   = $_GET['unique_id'] ?? '';
-
-if (!empty($other_user)) {
-    $sql_update = "
-        UPDATE conversation
-        SET read_mark = 0
-        WHERE sender_unique_id = :other_user
-          AND receiver_unique_id = :current_user
-          AND read_mark = 1
-    ";
-    $stmt_update = $pdo->prepare($sql_update);
-    $stmt_update->execute([
-        ":other_user"   => $other_user,
-        ":current_user" => $current_user
-    ]);
-}
-
-
-$user_unique_id = htmlspecialchars($_GET['unique_id']);
-$url = htmlspecialchars($_GET['url']);
-$fullUrl = $url;
 
 if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_id_session'])) {
     header("Location: ./");
     exit();
 }
 
-$user_select = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
-$query_select = $pdo->prepare($user_select);
-$query_select->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
-$result_select = $query_select->fetch(PDO::FETCH_ASSOC);
+$_SESSION['user_unique_id_session'] = $_COOKIE['user_unique_id_session'];
 
-if (($result_select['user_category'] == "none" && $result_select['contact_phone'] == "0") || ($result_select['user_category'] == "none" || $result_select['contact_phone'] == "0")) {
-    header("Location: account-details.php");
-}
+$id = htmlspecialchars($_GET["unique_id"]);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>Tora Express</title>
 
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/mobile-format.css">
@@ -57,7 +31,7 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
     <meta name="description" content="Vendez vos produits avec toute sécurité et prix abordable">
     <meta name="keywords" content="Vente, Achat, Tora Corporation">
     <meta name="author" content="Tora Corporation">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="index, follow">
 
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:title" content="Tora Corporation">
@@ -76,10 +50,10 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
     <meta name="twitter:creator" content="@YourTwitterHandle">
 
     <!-- Favicon -->
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
 </head>
 
-<body onload="scrollToBottom()">
+<body>
     <div class="container2">
         <!-- beginning of navigation bar -->
         <div class="before-navigation-add">
@@ -87,52 +61,35 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                 <a href="./">
                     <h3>Tora Market</h3>
                 </a>
-                <a href="./profile.php"><button><i class="ri-settings-4-line"></i></button></a>
+                <a href="./profile.php" style="color: #000;"><button><i class="ri-settings-4-line"></i></button></a>
             </div>
         </div>
         <!-- end of navigation bar -->
-        <div class="chat-card-user-list">
-            <div class="users-card">
-                <?php
-                $sql_user = "SELECT * FROM user_accounts WHERE user_unique_id = ?";
-                $query_user = $pdo->prepare($sql_user);
-                $query_user->execute([$user_unique_id]);
-                $res_user = $query_user->fetch();
-                ?>
-                <div class="conversation-profile">
-                    <a href="./chat.php" type="name" style="text-decoration: none;color: black;"><i class="ri-arrow-left-fill"></i></a>
-                    <!--  <img src="./assets/images/image1.jpeg" alt=""> -->
-                    <a href="#" type="name" style="text-decoration: none;color: black;">
-                        <h3><?php echo $res_user['user_name']; ?></h3>
-                    </a>
-                </div>
-                <!--  beginning of conversations -->
-                <div class="conversation-place" id="chat-container">
-                    <!-- <p id="test"></p> -->
-                </div>
-                <!--  end of conversations -->
-                <!-- beginning of input fileds -->
-                <div class="input-msg">
-                    <div class="image-place">
-                        <img src="./assets/images/image1.jpeg" class="imagePreview" alt="">
-                    </div>
-                    <form action="#" id="msgSentForm">
-                        <input type="text" name="sender_id" value="<?php echo $res_user['user_unique_id']; ?>" hidden>
-                        <?php if (!empty($fullUrl)) {
-                            echo '<textarea name="message" id="textA" placeholder="Ecrit un message...">' . $fullUrl . '</textarea>';
-                        } else {
-                            echo '<textarea name="message" id="textA" placeholder="Ecrit un message..."></textarea>';
-                        } ?>
-                        <div class="file">
-                            <input type="file" accept="image/*" name="sent_image" id="select-file" hidden>
-                            <label for="select-file"><i class="ri-image-fill"></i></label>
-                        </div>
-                        <button id="sendButton"><i class="ri-telegram-fill"></i></button>
-                    </form>
-                </div>
-                <!-- end of input fileds -->
-            </div>
+        <!--  ========================= BEGINNING OF TORA EXPRESS ======================= -->
+        <div class="tora-express-card">
+            <h3>🚀 Tora Express : Achetez et recevez vos produits en toute sérénité !</h3>
+            <p>
+                Avec <strong>Tora Express</strong>, vos achats deviennent simples et sécurisés. Notre équipe dédiée prend en charge chaque étape : de la vente à la livraison, en passant par la vérification et la protection de vos produits. Fini les inquiétudes, Tora Express s’occupe de tout !
+            </p>
+            <a href="#"><button>Utiliser tora express</button></a><br><br>
+            <p>
+                💡 <strong>Avantages :</strong>
+            <ul>
+                <li>Vente sécurisée et transparente</li>
+                <li>Livraison rapide et fiable</li>
+                <li>Suivi complet de votre commande</li>
+                <li>Assistance client disponible à tout moment</li>
+            </ul>
+            </p>
+            <p>
+                ⚠️ <strong>Important :</strong> Pour que notre équipe de <strong>Tora Corporation</strong> puisse gérer efficacement la vente et la livraison, il est nécessaire d’effectuer le paiement via notre système sécurisé. Cela garantit que chaque étape sera réalisée correctement et sans risque.
+            </p>
+            <p>
+                ✅ Nous recommandons fortement d’utiliser <strong>Tora Express</strong> pour tous vos achats afin de vous assurer que tout se déroule parfaitement et en toute confiance. Avec Tora Express, vous achetez l’esprit tranquille !
+            </p>
         </div>
+
+        <!--  ==================== END OF TORA EXPRESS ================= -->
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
                 <!-- Home Button -->
@@ -225,32 +182,23 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
         <!-- end of mobile navigation -->
 
         <!--  ====================================================================================== -->
-        <!-- <p id="copy-right-conns">&copy;2025 Tora Corporation. Tout droit réservé.
-            <br> Propulsé par <a href="https://www.amtech-co.com">Amtech technology (Amtech-co LLC | Software)</a>
-        </p> -->
+        <p id="copy-right-conns">
+            &copy;2025 Tora Corporation. Tout droit réservé.
+            <br> Propulsé par
+            <span itemprop="creator" itemscope itemtype="https://schema.org/Organization">
+                <a href="https://www.amtech-co.com" itemprop="url" rel="nofollow">
+                    <span itemprop="name">Amtech Technology (Amtech-co LLC | Software)</span>
+                </a>
+                <meta itemprop="foundingDate" content="2021">
+                <meta itemprop="address" content="Goma, Democratic Republic of the Congo">
+                <meta itemprop="email" content="contact@amtech-co.com">
+                <meta itemprop="sameAs" content="https://www.linkedin.com/company/amtechtechnology/">
+                <span itemprop="founder" itemscope itemtype="https://schema.org/Person">
+                    <meta itemprop="name" content="Audrey Mirindi">
+                </span>
+            </span>
+        </p>
     </div>
-    <script>
-        document.getElementById("chat-container").addEventListener("click", (e) => {
-            const deleteBtn = e.target.closest(".quick-action");
-            if (deleteBtn) {
-                const messageId = deleteBtn.getAttribute("data-id");
-                /* alert("Deleting message ID: " + messageId); */
-
-                // Example AJAX request to delete message
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", "php/delete-message.php", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onload = () => {
-                    if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-                        alert(xhr.response);
-                    }
-                };
-                xhr.send("id=" + messageId);
-            }
-        });
-    </script>
-    <script src="./assets/js/conversation.js"></script>
-    <script src="./ajax/conversation.js"></script>
 </body>
 
 </html>

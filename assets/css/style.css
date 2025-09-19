@@ -98,16 +98,25 @@ html.noscroll {
   display: flex;
 }
 
-.nav-right-bot .contents-right-nav .search .search-first-box {
+.nav-right-bot .contents-right-nav .search .search-first-box .srch {
   display: flex;
 }
 
-.nav-right-bot .contents-right-nav .search .search-first-box input {
+.nav-right-bot .contents-right-nav .search .search-first-box .srch input {
   padding: 0.5em;
   outline: none;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 8px 0px 0px 8px;
   width: 240px;
+}
+
+.nav-right-bot .contents-right-nav .search .search-first-box .srch button {
+  outline: none;
+  padding: 0.5em;
+  border: 1px solid var(--border);
+  border-radius: 0px 8px 8px 0px;
+  background-color: var(--while);
+  border-left: none;
 }
 
 .nav-right-bot .contents-right-nav .search .search-icon i {
@@ -2187,4 +2196,131 @@ select[type="rating"] {
   border-radius: 8px;
   padding: 0.5em;
   outline: none;
+}
+
+/* #################################### TORA BOOST ###################################### */
+
+/* ==================== TORA BOOST CARD ==================== */
+.tora-express-card {
+  background: #ffffff;
+  border-radius: 15px;
+  padding: 2rem;
+  margin: 1rem auto;
+  max-width: 900px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Headings */
+.tora-express-card h2 {
+  color: var(--primary-color);
+  /* Blue color consistent with TORA branding */
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.tora-express-card h3 {
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+/* Paragraphs */
+.tora-express-card p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+/* Lists */
+.tora-express-card ul,
+.tora-express-card ol {
+  margin-left: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.tora-express-card li {
+  margin-bottom: 0.5rem;
+}
+
+/* Links */
+.tora-express-card a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.tora-express-card a:hover {
+  text-decoration: underline;
+}
+
+/* Horizontal rules */
+.tora-express-card hr {
+  border: 0;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 1.5rem 0;
+}
+
+/* Table styling */
+.tora-express-card table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.tora-express-card table th,
+.tora-express-card table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.tora-express-card table th {
+  background-color: #f0f8ff;
+  color: var(--primary-color);
+}
+
+.tora-express-card table td {
+  background-color: #fff;
+}
+
+/* Buttons (if any) */
+.tora-express-card button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.tora-express-card button:hover {
+  background: var(--primary-color);
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+  .tora-express-card {
+    padding: 1.5rem;
+    margin: 0.5rem;
+  }
+
+  .tora-express-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .tora-express-card h3 {
+    font-size: 1.1rem;
+  }
+
+  .tora-express-card table th,
+  .tora-express-card table td {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
 }

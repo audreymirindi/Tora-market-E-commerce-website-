@@ -8,6 +8,8 @@ if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_
     exit();
 }
 
+$_SESSION['user_unique_id_session'] = $_COOKIE['user_unique_id_session'];
+
 $user_select = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
 $query_select = $pdo->prepare($user_select);
 $query_select->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
@@ -73,7 +75,7 @@ $viewF = new viewFormat();
             <div class="bottom-bar">
                 <div class="bottom-contents">
                     <a href="./">
-                        <h3>Tora Corporation</h3>
+                        <h3>Tora Market</h3>
                     </a>
                     <!-- <div class="nav-cont">
             <ul>
@@ -92,7 +94,10 @@ $viewF = new viewFormat();
                         <div class="contents-right-nav">
                             <div class="search">
                                 <div class="search-first-box">
-                                    <input type="text" placeholder="Filtrer par nom..." id="searchInput">
+                                    <div class="srch">
+                                        <input type="text" placeholder="Filtrer par nom..." id="searchInput">
+                                        <button><i class="ri-search-line"></i></button>
+                                    </div>
                                 </div>
                                 <!-- <span class="search-icon"><i class="ri-search-line"></i></span> -->
                                 <!-- beginning of search-results -->
@@ -229,7 +234,10 @@ $viewF = new viewFormat();
             </a>
             <div class="search">
                 <div class="search-first-box">
-                    <input type="text" placeholder="Filtrer par nom..." class="searchInput2" id="searchInput2">
+                    <div class="srch">
+                        <input type="text" placeholder="Filtrer par nom..." class="searchInput2" id="searchInput2">
+                        <button><i class="ri-search-line"></i></button>
+                    </div>
                 </div>
                 <!-- <span class="search-icon"><i class="ri-search-line"></i></span> -->
                 <!-- beginning of search-results -->
@@ -241,7 +249,7 @@ $viewF = new viewFormat();
         <div class="before-mobile-menu">
             <div class="mobile-menu">
                 <div class="top-mob">
-                    <h2>Tora Corporation</h2>
+                    <h2>Tora Market</h2>
                 </div>
                 <div class="menu-contents-mob">
                     <ul>
@@ -286,10 +294,13 @@ $viewF = new viewFormat();
         </div>
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
+                <!-- Home Button -->
                 <div class="icon-1">
                     <a href="./index.php"><button id="home-btn"><i class="ri-home-4-line"></i></button></a>
                     <label for="">Acceuille</label>
                 </div>
+
+                <!-- Vendre Button -->
                 <?php
                 if (isset($_COOKIE['user_unique_id_session'])) {
                     $sql_acc = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
@@ -299,13 +310,13 @@ $viewF = new viewFormat();
 
                     if ($res_acc['user_category'] == "vendeur" || $res_acc['user_category'] == "entreprise") {
                         echo '<div class="icon-1">
-                    <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
-                    <label for="">Vendre</label>
+                        <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
+                        <label for="">Vendre</label>
                     </div>';
                     } else {
                         echo '<div class="icon-1" style="color:gray;">
-                    <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
-                    <label for="">Vendre</label>
+                        <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
+                        <label for="">Vendre</label>
                     </div>';
                     }
                 } else {
@@ -315,39 +326,63 @@ $viewF = new viewFormat();
                 </div>';
                 }
                 ?>
+
+                <!-- Chat Button -->
                 <?php
                 if (isset($_COOKIE['user_unique_id_session'])) {
+                    // Count all unread messages for the logged-in user
+                    $sql_unread = "SELECT COUNT(*) AS total_unread 
+                           FROM conversation 
+                           WHERE receiver_unique_id = :current_user 
+                             AND read_mark = 1";
+                    $query_unread = $pdo->prepare($sql_unread);
+                    $query_unread->execute([":current_user" => $_COOKIE['user_unique_id_session']]);
+                    $res_unread = $query_unread->fetch(PDO::FETCH_ASSOC);
+                    $total_unread = $res_unread['total_unread'];
+
                     echo '<div class="icon-1">
                     <a href="./chat.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i>';
+                    if ($total_unread > 0) {
+                        // Cap the badge at +9
+                        if ($total_unread > 9) {
+                            echo '<span class="chat-num">+9</span>';
+                        } else {
+                            echo '<span class="chat-num">' . $total_unread . '</span>';
+                        }
+                    }
+                    echo '      </button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i></button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 }
                 ?>
+
+                <!-- Profile Button -->
                 <?php
                 if (isset($_COOKIE['user_unique_id_session'])) {
                     echo '<div class="icon-1">
                     <a href="./profile.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 }
                 ?>
             </div>
         </div>
-        <!--  end of mobile navigation -->
+        <!-- end of mobile navigation -->
+
         <!--  ====================================================================================== -->
         <!-- end of navigation bar -->
         <div class="body-contents">
@@ -545,11 +580,25 @@ $viewF = new viewFormat();
                                         <div class="image">
                                             <a href="./<?php echo $row_prod['seo_link'] ?>"><img src="<?php echo $row_prod_image['image_link'] ?>" alt=""></a>
                                             <?php
-                                            if ($row_prod['etat'] == "Utilisé") {
+                                            if ($row_prod['etat'] == "Occasion – Comme neuf") {
+                                                echo "<span class='product-state' 
+                                                        style='
+                                                                background:rgba(32, 126, 248, 0.63);
+                                                                border:1px solid blue;
+                                                                color:white;
+                                                        '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
+                                            } else if ($row_prod['etat'] == "Occasion – Bon état") {
                                                 echo "<span class='product-state' 
                                                         style='
                                                                 background:rgba(255, 166, 0, 0.63);
                                                                 border:1px solid orange;
+                                                                color:white;
+                                                        '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
+                                            } else if ($row_prod['etat'] == "Occasion – Usé") {
+                                                echo "<span class='product-state' 
+                                                        style='
+                                                                background:rgba(248, 71, 6, 0.63);
+                                                                border:1px solid red;
                                                                 color:white;
                                                         '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
                                             } else {
@@ -750,10 +799,10 @@ $viewF = new viewFormat();
                 <div class="card-f-1">
                     <h3>Services</h3>
                     <ul>
-                        <li><a href="#">Tora vente</a></li>
-                        <li><a href="#">Tora Aide pour client</a></li>
-                        <li><a href="#">Tora Aide pour vendeur</a></li>
-                        <li><a href="#">Soutient</a></li>
+                        <li><a href="./tora-vente.php">Tora Vente</a></li>
+                        <li><a href="./aide-acheteur.php">Tora Aide acheteur</a></li>
+                        <li><a href="./aide-vendeur.php">Tora Aide vendeur</a></li>
+                        <li><a href="./nous-soutenir.php">Nous Soutenir</a></li>
                     </ul>
                 </div>
                 <!-- end of card1 footer -->
@@ -761,10 +810,10 @@ $viewF = new viewFormat();
                 <div class="card-f-1">
                     <h3>Sécurité</h3>
                     <ul>
-                        <li><a href="#">Sécurité de vos données</a></li>
-                        <li><a href="#">Sécurité de vos conversations</a></li>
-                        <li><a href="#">Sureté de vente</a></li>
-                        <li><a href="#">Sécurité de vos achats</a></li>
+                        <li><a href="./securite-de-vos-donnees.php">Sécurité de vos données</a></li>
+                        <li><a href="./securite-des-conversations.php">Sécurité de vos conversations</a></li>
+                        <li><a href="./surete-de-vente.php">Sureté de vente</a></li>
+                        <li><a href="./securite-des-achat.php">Sécurité de vos achats</a></li>
                     </ul>
                 </div>
                 <!-- end of card1 footer -->
@@ -772,10 +821,10 @@ $viewF = new viewFormat();
                 <div class="card-f-1">
                     <h3>Entreprise</h3>
                     <ul>
-                        <li><a href="#">Qui sommes-nous?</a></li>
-                        <li><a href="#">Pourquoi nous faire confiance</a></li>
-                        <li><a href="#">FAQ</a></li>
-                        <li><a href="#">Prendre un partenariat</a></li>
+                        <li><a href="./qui-nous-sommes.php">Qui sommes-nous?</a></li>
+                        <li><a href="./nous-faire-confiance.php">Pourquoi nous faire confiance</a></li>
+                        <li><a href="./tora-faq.php">FAQ</a></li>
+                        <li><a href="./partenariat.php">Devenez Partenaire de TORA</a></li>
                     </ul>
                 </div>
                 <!-- end of card1 footer -->
@@ -783,8 +832,8 @@ $viewF = new viewFormat();
                 <div class="card-f-1">
                     <h3>Contacts</h3>
                     <ul>
-                        <li><a href="#">contact@toracorporation.com</a></li>
-                        <li><a href="#">+243 000 000 000</a></li>
+                        <li><a href="mailto:contact@toracorporation.com">contact@toracorporation.com</a></li>
+                        <li><a href="#">+243 993 963 174</a></li>
                     </ul>
                     <div class="social-medias">
                         <a href="#"><button><i class="ri-facebook-circle-fill"></i></button></a>
@@ -800,7 +849,7 @@ $viewF = new viewFormat();
                     <br> Propulsé par
                     <span itemprop="creator" itemscope itemtype="https://schema.org/Organization">
                         <a href="https://www.amtech-co.com" itemprop="url" rel="sponsored">
-                            <span itemprop="name">Amtech Technology (Amtech-co LLC | Software)</span>
+                            <span itemprop="name">Amtech technology (Amtech-co LLC | Software)</span>
                         </a>
                         <meta itemprop="foundingDate" content="2021">
                         <meta itemprop="address" content="Goma, Democratic Republic of the Congo">
@@ -814,8 +863,6 @@ $viewF = new viewFormat();
             </div>
         </div>
     </div>
-
-
 
     <!-- beginning of scripting -->
     <script src="./assets/js/recherche.js" defer></script>

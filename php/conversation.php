@@ -71,8 +71,8 @@ $og_image = $ogData['image'] ?? '';
 
 // Insert into DB
 $sql_conversation = "INSERT INTO conversation 
-    (`sender_unique_id`, `receiver_unique_id`, `message`, `image_sent`, `og_title`, `og_description`, `og_image`)
-    VALUES (?, ?, ?, ?, ?, ?, ?)";
+    (`sender_unique_id`, `receiver_unique_id`, `message`, `image_sent`, `og_title`, `og_description`, `og_image`, `read_mark`)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 $query_conversation = $pdo->prepare($sql_conversation);
 $ex = $query_conversation->execute([
     $sender_unique_id,
@@ -81,7 +81,8 @@ $ex = $query_conversation->execute([
     $image_to_save,
     $og_title,
     $og_description,
-    $og_image
+    $og_image,
+    "1"
 ]);
 
 if ($ex) {

@@ -61,7 +61,7 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
         <div class="before-navigation-add">
             <div class="navigation-bar-add">
                 <a href="./">
-                    <h3>Tora corporation</h3>
+                    <h3>Tora Market</h3>
                 </a>
                 <a href="./profile.php"><button><i class="ri-settings-4-line"></i></button></a>
             </div>
@@ -74,10 +74,36 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                     <h2 style="text-align: center;">utilisateurs</h2>
                 </div>
                 <?php
-                $sql_acc = "SELECT * FROM user_accounts WHERE user_unique_id != ?";
+                $sql_acc = "
+    SELECT u.user_unique_id, u.user_name, u.user_image, c.message,
+           (SELECT COUNT(*) 
+            FROM conversation c2 
+            WHERE c2.sender_unique_id = u.user_unique_id 
+              AND c2.receiver_unique_id = :current_user
+              AND c2.read_mark = 1) AS unread_count
+    FROM user_accounts u
+    LEFT JOIN conversation c 
+        ON (
+            (c.sender_unique_id = u.user_unique_id AND c.receiver_unique_id = :current_user)
+            OR 
+            (c.receiver_unique_id = u.user_unique_id AND c.sender_unique_id = :current_user)
+        )
+    WHERE u.user_unique_id != :current_user
+    AND c.msg_id = (
+        SELECT MAX(c2.msg_id) 
+        FROM conversation c2 
+        WHERE 
+            (c2.sender_unique_id = u.user_unique_id AND c2.receiver_unique_id = :current_user)
+            OR
+            (c2.receiver_unique_id = u.user_unique_id AND c2.sender_unique_id = :current_user)
+    )
+    ORDER BY c.msg_id DESC
+";
+
                 $query_acc = $pdo->prepare($sql_acc);
-                $query_acc->execute([$_COOKIE['user_unique_id_session']]);
+                $query_acc->execute([":current_user" => $_COOKIE['user_unique_id_session']]);
                 $res_acc = $query_acc->fetchAll(PDO::FETCH_ASSOC);
+
                 if (count($res_acc) > 0) {
                     foreach ($res_acc as $row_acc) {
                 ?>
@@ -93,10 +119,19 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                                 ?>
 
                                 <div class="det-user">
-                                    <h3><?php echo $row_acc['user_name']; ?></h3>
-                                    <p>Last messsage in short...</p>
+                                    <h3><?php echo htmlspecialchars($row_acc['user_name']); ?></h3>
+                                    <p>
+                                        <?php
+                                        echo !empty($row_acc['message'])
+                                            ? htmlspecialchars(substr($row_acc['message'], 0, 30)) . "..."
+                                            : "No messages yet";
+                                        ?>
+                                    </p>
                                 </div>
-                                <span class="msg-number">20</span>
+
+                                <?php if ($row_acc['unread_count'] > 0) { ?>
+                                    <span class="msg-number"><?php echo $row_acc['unread_count']; ?></span>
+                                <?php } ?>
                             </div>
                         </a>
                         <!-- end of user-card -->
@@ -104,16 +139,20 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                     }
                 }
                 ?>
+
             </div>
         </div>
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
+                <!-- Home Button -->
                 <div class="icon-1">
                     <a href="./index.php"><button id="home-btn"><i class="ri-home-4-line"></i></button></a>
                     <label for="">Acceuille</label>
                 </div>
+
+                <!-- Vendre Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
                     $sql_acc = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
                     $query_acc = $pdo->prepare($sql_acc);
                     $query_acc->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
@@ -121,13 +160,13 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
 
                     if ($res_acc['user_category'] == "vendeur" || $res_acc['user_category'] == "entreprise") {
                         echo '<div class="icon-1">
-                    <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
-                    <label for="">Vendre</label>
+                        <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
+                        <label for="">Vendre</label>
                     </div>';
                     } else {
                         echo '<div class="icon-1" style="color:gray;">
-                    <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
-                    <label for="">Vendre</label>
+                        <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
+                        <label for="">Vendre</label>
                     </div>';
                     }
                 } else {
@@ -137,38 +176,62 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                 </div>';
                 }
                 ?>
+
+                <!-- Chat Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
+                    // Count all unread messages for the logged-in user
+                    $sql_unread = "SELECT COUNT(*) AS total_unread 
+                           FROM conversation 
+                           WHERE receiver_unique_id = :current_user 
+                             AND read_mark = 1";
+                    $query_unread = $pdo->prepare($sql_unread);
+                    $query_unread->execute([":current_user" => $_COOKIE['user_unique_id_session']]);
+                    $res_unread = $query_unread->fetch(PDO::FETCH_ASSOC);
+                    $total_unread = $res_unread['total_unread'];
+
                     echo '<div class="icon-1">
                     <a href="./chat.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i>';
+                    if ($total_unread > 0) {
+                        // Cap the badge at +9
+                        if ($total_unread > 9) {
+                            echo '<span class="chat-num">+9</span>';
+                        } else {
+                            echo '<span class="chat-num">' . $total_unread . '</span>';
+                        }
+                    }
+                    echo '      </button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i></button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 }
                 ?>
+
+                <!-- Profile Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
                     echo '<div class="icon-1">
                     <a href="./profile.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 }
                 ?>
             </div>
         </div>
+        <!-- end of mobile navigation -->
         <!--  ====================================================================================== -->
         <p id="copy-right-conns">
             &copy;2025 Tora Corporation. Tout droit réservé.

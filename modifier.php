@@ -1,204 +1,235 @@
 <?php
 session_start();
-
 require_once("./php/config.php");
-require_once("./php/time-format.php");
 
+// Validate user session or cookie
 if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_id_session'])) {
     header("Location: ./");
     exit();
 }
 
+// Get user info
 $user_select = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
 $query_select = $pdo->prepare($user_select);
 $query_select->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
 $result_select = $query_select->fetch(PDO::FETCH_ASSOC);
 
-if (($result_select['user_category'] == "none" && $result_select['contact_phone'] == "0") || ($result_select['user_category'] == "none" || $result_select['contact_phone'] == "0")) {
+// Redirect if required user info is missing
+if ($result_select['user_category'] == "none" || $result_select['contact_phone'] == "0") {
     header("Location: account-details.php");
+    exit();
 }
 
-$unique_idFetch = $_GET['unique_id'];
+// Get product info to modify
+if (!isset($_GET['unique_id'])) {
+    header("Location: publication.php");
+    exit();
+}
+$product_id = $_GET['unique_id'];
+$product_query = $pdo->prepare("SELECT * FROM produit WHERE unique_id = ?");
+$product_query->execute([$product_id]);
+$product = $product_query->fetch(PDO::FETCH_ASSOC);
+
+// Get product images
+$image_query = $pdo->prepare("SELECT * FROM imagess WHERE product_unique_id = ?");
+$image_query->execute([$product_id]);
+$product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modification</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>Modifier le produit</title>
+
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/mobile-format.css">
     <link rel="stylesheet" href="./assets/RemixIcon_Fonts_v4.6.0/fonts/remixicon.css">
 
+    <!-- Essential SEO Meta Tags -->
+    <meta name="description" content="Vendez vos produits avec toute sécurité et prix abordable">
+    <meta name="keywords" content="Vente, Achat, Tora Corporation">
+    <meta name="author" content="Tora Corporation">
+    <meta name="robots" content="noindex, nofollow">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:title" content="Tora Corporation">
+    <meta property="og:description" content="Vendez vos produits avec toute sécurité et prix abordable">
+    <meta property="og:image" content="https://www.example.com/images/preview.jpg">
+    <meta property="og:url" content="https://www.example.com/your-page">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Tora Corporation">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="Vente en ligne">
+    <meta name="twitter:title" content="Tora Corporation">
+    <meta name="twitter:description" content="Vendez vos produits avec toute sécurité et prix abordable">
+    <meta name="twitter:image" content="https://www.example.com/images/preview.jpg">
+    <meta name="twitter:site" content="@YourTwitterHandle">
+    <meta name="twitter:creator" content="@YourTwitterHandle">
+
     <!-- Favicon -->
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-
 </head>
 
 <body>
     <div class="container2">
-        <!-- beginning of navigation bar -->
+        <!-- Navigation bar -->
         <div class="before-navigation-add">
             <div class="navigation-bar-add">
                 <a href="./">
-                    <h3>Tora corporation</h3>
+                    <h3>Tora Market</h3>
                 </a>
                 <a href="./profile.php"><button><i class="ri-settings-4-line"></i></button></a>
             </div>
         </div>
-        <!-- end of navigation bar -->
+
         <div class="body-contents-publish">
             <div class="card-publish">
                 <div class="left-add">
-                    <?php
-                    $sql_mod = "SELECT * FROM produit WHERE unique_id = ?";
-                    $query_mod = $pdo->prepare($sql_mod);
-                    $query_mod->execute([$unique_idFetch]);
-                    $res_mod = $query_mod->fetchAll(PDO::FETCH_ASSOC);
-                    if (count($res_mod) > 0) {
-                        foreach ($res_mod as $row_mod) {
-
-
-                    ?>
-                            <div class="card">
-                                <h2>Modifier un produit</h2>
-                                <p id="visulizer" style="text-align: center;padding:0.4em;"></p>
-                                <form action="#" id="publier_produit">
-                                    <div class="group-input1">
-                                        <div class="input1">
-                                            <label for="">Marque ou Nom</label>
-                                            <input type="text" value="<?php echo $row_mod['titre'] ?>" name="marque" placeholder="Nom du produit" maxlength="28">
-                                        </div>
-                                        <div class="input1">
-                                            <label for="">Prix</label>
-                                            <input type="number" value="<?php echo $row_mod['prix'] ?>" name="prix" placeholder="Prix du produit">
-                                        </div>
-                                    </div>
-                                    <div class="group-input1">
-                                        <div class="input1">
-                                            <label for="">Localisation</label>
-                                            <input type="text" value="<?php echo $row_mod['location'] ?>" name="Localisation" placeholder="Localisation du produit">
-                                        </div>
-                                        <div class="input1">
-                                            <label for="">Categorie</label>
-                                            <?php $categorie = $row_mod['categorie']; ?>
-                                            <select name="categorie" id="categorie">
-                                                <option value="" <?php if ($categorie == '') echo 'selected'; ?>>-- Choisir --</option>
-                                                <option value="telephone_ablettes" <?php if ($categorie == 'telephone_ablettes') echo 'selected'; ?>>Téléphone & Tablettes</option>
-                                                <option value="electronique" <?php if ($categorie == 'electronique') echo 'selected'; ?>>Electronique</option>
-                                                <option value="meubles_electromenagere" <?php if ($categorie == 'meubles_electromenagere') echo 'selected'; ?>>Meubles & Electroménagere</option>
-                                                <option value="mode_habillement" <?php if ($categorie == 'mode_habillement') echo 'selected'; ?>>Mode & Habillement</option>
-                                                <option value="vehicules_trans" <?php if ($categorie == 'vehicules_trans') echo 'selected'; ?>>Véhicules & Transport</option>
-                                                <option value="agriculture_alimentation" <?php if ($categorie == 'agriculture_alimentation') echo 'selected'; ?>>Agriculture & Alimentation</option>
-                                                <option value="proprietes" <?php if ($categorie == 'proprietes') echo 'selected'; ?>>Propriétés</option>
-                                                <option value="sante_beaute" <?php if ($categorie == 'sante_beaute') echo 'selected'; ?>>Santé & Beauté</option>
-                                                <option value="art_sport_plein_air" <?php if ($categorie == 'art_sport_plein_air') echo 'selected'; ?>>Art, Sport & Plein Air</option>
-                                                <option value="bebe_enfants" <?php if ($categorie == 'bebe_enfants') echo 'selected'; ?>>Bébé & Enfants</option>
-                                                <option value="animaux" <?php if ($categorie == 'animaux') echo 'selected'; ?>>Animaux</option>
-                                                <option value="equipements" <?php if ($categorie == 'equipements') echo 'selected'; ?>>Equipements</option>
-                                                <option value="quincaillerie_construction" <?php if ($categorie == 'quincaillerie_construction') echo 'selected'; ?>>Quincaillerie & Construction</option>
-                                                <option value="reparation" <?php if ($categorie == 'reparation') echo 'selected'; ?>>Réparation</option>
-                                                <option value="autres" <?php if ($categorie == 'autres') echo 'selected'; ?>>Autres</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="group-input1">
-                                        <div class="input1">
-                                            <label for="">Sous-categorie</label>
-                                            <select name="sous-categorie" id="sous-categorie">
-                                                <option value="<?php echo $row_mod['sous_categorie'] ?>"><?php echo $row_mod['sous_categorie'] ?></option>
-                                            </select>
-                                        </div>
-                                        <div class="input1">
-                                            <label for="">Livraison</label>
-                                            <?php $selectedValue = $row_mod['delivary'] ?>
-                                            <select name="Livraison" id="">
-                                                <option value="" <?php if ($selectedValue == '') echo 'selected'; ?>>-- Choisir --</option>
-                                                <option value="Goma" <?php if ($selectedValue == 'Goma') echo 'selected'; ?>>Goma</option>
-                                                <option value="Goma-Bukavu" <?php if ($selectedValue == 'Goma-Bukavu') echo 'selected'; ?>>Goma-Bukavu</option>
-                                                <option value="Est RDC" <?php if ($selectedValue == 'Est RDC') echo 'selected'; ?>>Est RDC</option>
-                                                <option value="Tout la RDC" <?php if ($selectedValue == 'Tout la RDC') echo 'selected'; ?>>Toute la RDC</option>
-                                                <option value="Est Afrique" <?php if ($selectedValue == 'Est Afrique') echo 'selected'; ?>>Est Afrique</option>
-                                                <option value="Toute l'Afrique" <?php if ($selectedValue == "Toute l'Afrique") echo 'selected'; ?>>Toute l'Afrique</option>
-                                            </select>
-                                        </div>
-
-                                    </div>
-                                    <div class="group-input1">
-                                        <div class="input1">
-                                            <label for="">Etat du produit</label>
-                                            <?php $etatProduit = $row_mod['etat']; ?>
-                                            <select name="etat_produit" id="">
-                                                <option value="" <?php if ($etatProduit == '') echo 'selected'; ?>>-- Choisir --</option>
-                                                <option value="Nouveau Produit" <?php if ($etatProduit == 'Nouveau Produit') echo 'selected'; ?>>Nouveau Produit</option>
-                                                <option value="Utilisé" <?php if ($etatProduit == 'Utilisé') echo 'selected'; ?>>Utilisé</option>
-                                            </select>
-                                        </div>
-                                        <div class="input1">
-                                            <label for="">Nombre en stock</label>
-                                            <input type="number" value="<?php echo $row_mod['stock_number'] ?>" name="nombre_produit" placeholder="Nombre de produit en stock">
-                                        </div>
-                                    </div>
-                                    <div class="input1">
-                                        <label for="">Déscription</label>
-                                        <textarea name="description" maxlength="370" placeholder="Déscription du produit"
-                                            rows="4" id=""><?php echo $row_mod['description'] ?></textarea>
-                                    </div>
-                                    <div class="input1">
-                                        <label for="">Modifier votre photo</label>
-                                        <input type="file" name="images[]" accept="image/*" multiple>
-                                    </div>
-                                    <button>Publier</button>
-                                </form>
+                    <div class="card">
+                        <h2>Modifier le produit</h2>
+                        <p id="visulizer" style="text-align:center;padding:0.4em;"></p>
+                        <form action="#" id="publier_produit">
+                            <div class="group-input1">
+                                <div class="input1">
+                                    <label for="">Categorie</label>
+                                    <select name="categorie" id="categorie">
+                                        <option value="">-- Choisir --</option>
+                                        <option value="telephone_tablettes">Téléphone & Tablettes</option>
+                                        <option value="electronique">Electronique</option>
+                                        <option value="meubles_electromenagere">Meubles & Electroménagere</option>
+                                        <option value="mode_habillement">Mode & Habillement</option>
+                                        <option value="vehicules_trans">Véhicules & Transport</option>
+                                        <option value="agriculture_alimentation">Agriculture & Alimentation</option>
+                                        <option value="proprietes">Propriétés</option>
+                                        <option value="sante_beaute">Santé & Beauté</option>
+                                        <option value="art_sport_plein_air">Art, Sport & Plein Air</option>
+                                        <option value="bebe_enfants">Bébé & Enfants</option>
+                                        <option value="animaux">Animaux</option>
+                                        <option value="equipements">Equipements</option>
+                                        <option value="quincaillerie_construction">Quincaillerie & Construction</option>
+                                        <option value="reparation">Réparation</option>
+                                        <option value="autres">Autres</option>
+                                    </select>
+                                </div>
+                                <div class="input1">
+                                    <label for="">Sous-categorie</label>
+                                    <select name="sous-categorie" id="sous-categorie">
+                                        <option value="">-- Choisir une catégorie d'abord --</option>
+                                    </select>
+                                </div>
                             </div>
-                    <?php
-                        }
-                    }
-                    ?>
+                            <div class="group-input1">
+                                <div class="input1">
+                                    <label for="">Marque</label>
+                                    <select name="marque" id="marque-selector">
+                                        <option value="">-- marque ici --</option>
+                                    </select>
+                                </div>
+                                <div class="input1">
+                                    <label for="">Nom</label>
+                                    <input type="text" name="marque2" placeholder="Nom du produit" maxlength="28">
+                                </div>
+                            </div>
+                            <div class="group-input1">
+                                <div class="input1">
+                                    <label for="">Etat du produit</label>
+                                    <select name="etat_produit" id="">
+                                        <option value="">-- Choisir --</option>
+                                        <option value="Nouveau">Nouveau</option>
+                                        <option value="Occasion – Comme neuf">Occasion – Comme neuf</option>
+                                        <option value="Occasion – Bon état">Occasion – Bon état</option>
+                                        <option value="Occasion – Usé">Occasion – Usé</option>
+                                    </select>
+                                </div>
+                                <div class="input1">
+                                    <label for="">Prix</label>
+                                    <div class="price" style="display: flex;">
+                                        <input type="number" name="prix" placeholder="Prix du produit" style="border-right: none;border-radius:8px 0px 0px 8px;">
+                                        <select name="currency" id="" style="border-left: none;border-radius:0px 8px 8px 0px;">
+                                            <option value="USD">USD</option>
+                                            <option value="CDF">CDF</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="group-input1">
+                                <div class="input1">
+                                    <label for="">Localisation</label>
+                                    <input type="text" name="Localisation" placeholder="Localisation du produit">
+                                </div>
+                                <div class="input1">
+                                    <label for="">Livraison</label>
+                                    <select name="Livraison" id="">
+                                        <option value="">-- Choisir --</option>
+                                        <option value="Goma">Goma</option>
+                                        <option value="Goma-Bukavu">Goma-Bukavu</option>
+                                        <option value="Est RDC">Est RDC</option>
+                                        <option value="Toute la RDC">Toute la RDC</option>
+                                        <option value="Est Afrique">Est Afrique</option>
+                                        <option value="Toute l'Afrique">Toute l'Afrique</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="group-input1">
+                                <div class="input1">
+                                    <label for="">Nombre en stock</label>
+                                    <input type="number" name="nombre_produit" placeholder="Nombre de produit en stock">
+                                </div>
+                            </div>
+                            <div class="input1">
+                                <label for="">Déscription</label>
+                                <textarea name="description" maxlength="370" placeholder="Déscription du produit"
+                                    rows="4" id=""></textarea>
+                            </div>
+                            <div class="input1">
+                                <label for="">Séléctionner votre photo</label>
+                                <input type="file" id="imagesSelector" name="images[]" accept="image/*" multiple onchange="checkFileLimit(this)">
+                            </div>
+                            <button id="publish-btn">Publier</button>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- Right-side "Mes Publications" and pagination -->
                 <div class="middile"></div>
                 <div class="right-add">
                     <h2>Mes Publications</h2><br><br>
-                    <!-- beginning of contents -->
                     <div class="contents-list-add" id="contents-list-add">
                         <?php
+                        require_once("./php/time-format.php");
                         $passedTime = new passedTime();
-
-                        $sql = "SELECT * FROM produit ORDER BY id DESC";
+                        $sql = "SELECT * FROM produit WHERE user_unique_id = ? OR user_unique_id = ? ORDER BY id DESC";
                         $query = $pdo->prepare($sql);
-                        $query->execute();
+                        $query->execute([$_COOKIE['user_unique_id_session'], $_SESSION['user_unique_id_session']]);
                         $res = $query->fetchAll(PDO::FETCH_ASSOC);
-
                         if (count($res) > 0) {
                             foreach ($res as $row) {
-
                                 $sql2 = "SELECT * FROM imagess WHERE product_unique_id = ? LIMIT 1";
                                 $query2 = $pdo->prepare($sql2);
                                 $query2->execute([$row['unique_id']]);
                                 $res_image = $query2->fetchAll(PDO::FETCH_ASSOC);
-
                                 if (count($res_image) > 0) {
                                     foreach ($res_image as $rowImage) {
-
                         ?>
                                         <div class="card-add">
                                             <img src="<?php echo "./" . $rowImage['image_link']; ?>" alt="">
                                             <div class="description-add">
                                                 <div class="desc-desc">
-                                                    <h3><?php echo $row['titre'] ?></h3>
-                                                    <p>
-                                                        <?php
-                                                        $desc = $row['description'];
-                                                        $shortDesc = (strlen($desc) > 35) ? substr($desc, 0, 35) . "..." : $desc;
-                                                        echo $shortDesc;
-                                                        ?>
-                                                    </p>
+                                                    <h3><?php echo htmlspecialchars($row['titre']); ?></h3>
+                                                    <p><?php $desc = $row['description'];
+                                                        echo (strlen($desc) > 35) ? substr($desc, 0, 35) . "..." : $desc; ?></p>
                                                     <p class="h">
                                                         <?php
                                                         $time = $passedTime->timeAgo($row['duree']);
-                                                        echo $time;
+                                                        if ($row['promotion'] == "Enabled") {
+                                                            echo $time . " <i class='ri-separator'></i> <span>Boosté <i class='ri-verified-badge-fill'></i></span>";
+                                                        } else {
+                                                            echo $time;
+                                                        }
                                                         ?>
                                                     </p>
                                                 </div>
@@ -206,9 +237,14 @@ $unique_idFetch = $_GET['unique_id'];
                                             </div>
                                             <div class="list-drop-down">
                                                 <div class="drop-down-card">
-                                                    <a href="#"><i class="ri-rocket-2-fill"></i> Booster</a>
-                                                    <a href="./modifier.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-pencil-fill"></i> Modifier</a>
-                                                    <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
+                                                    <?php if ($row['promotion'] == "Enabled"): ?>
+                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-pencil-fill"></i> Modifier</a>
+                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
+                                                    <?php else: ?>
+                                                        <a href="./tora-boost.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-rocket-2-fill"></i> Booster</a>
+                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-pencil-fill"></i> Modifier</a>
+                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -216,22 +252,27 @@ $unique_idFetch = $_GET['unique_id'];
                                     }
                                 }
                             }
+                        } else {
+                            echo "<h1 style='text-align:center;color:gray;'>Pas de produit disponible</h1>";
                         }
                         ?>
                     </div>
-                    <!-- end of contents -->
                     <div id="pagination-controls2" class="pagination-controls"></div>
                 </div>
             </div>
         </div>
+
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
+                <!-- Home Button -->
                 <div class="icon-1">
                     <a href="./index.php"><button id="home-btn"><i class="ri-home-4-line"></i></button></a>
                     <label for="">Acceuille</label>
                 </div>
+
+                <!-- Vendre Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
                     $sql_acc = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
                     $query_acc = $pdo->prepare($sql_acc);
                     $query_acc->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
@@ -239,13 +280,13 @@ $unique_idFetch = $_GET['unique_id'];
 
                     if ($res_acc['user_category'] == "vendeur" || $res_acc['user_category'] == "entreprise") {
                         echo '<div class="icon-1">
-                    <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
-                    <label for="">Vendre</label>
+                        <a href="./publication.php"><button><i class="ri-add-circle-line"></i></button></a>
+                        <label for="">Vendre</label>
                     </div>';
                     } else {
                         echo '<div class="icon-1" style="color:gray;">
-                    <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
-                    <label for="">Vendre</label>
+                        <button><i class="ri-add-circle-line" style="color:gray;"></i></button>
+                        <label for="">Vendre</label>
                     </div>';
                     }
                 } else {
@@ -255,38 +296,63 @@ $unique_idFetch = $_GET['unique_id'];
                 </div>';
                 }
                 ?>
+
+                <!-- Chat Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
+                    // Count all unread messages for the logged-in user
+                    $sql_unread = "SELECT COUNT(*) AS total_unread 
+                           FROM conversation 
+                           WHERE receiver_unique_id = :current_user 
+                             AND read_mark = 1";
+                    $query_unread = $pdo->prepare($sql_unread);
+                    $query_unread->execute([":current_user" => $_COOKIE['user_unique_id_session']]);
+                    $res_unread = $query_unread->fetch(PDO::FETCH_ASSOC);
+                    $total_unread = $res_unread['total_unread'];
+
                     echo '<div class="icon-1">
                     <a href="./chat.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i>';
+                    if ($total_unread > 0) {
+                        // Cap the badge at +9
+                        if ($total_unread > 9) {
+                            echo '<span class="chat-num">+9</span>';
+                        } else {
+                            echo '<span class="chat-num">' . $total_unread . '</span>';
+                        }
+                    }
+                    echo '      </button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php">
-                        <button><i class="ri-chat-new-fill"></i><span class="chat-num">+90</span></button>
+                        <button><i class="ri-chat-new-fill"></i></button>
                     </a>
                     <label for="">Chater</label>
                 </div>';
                 }
                 ?>
+
+                <!-- Profile Button -->
                 <?php
-                if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id_session'])) {
+                if (isset($_COOKIE['user_unique_id_session'])) {
                     echo '<div class="icon-1">
                     <a href="./profile.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 } else {
                     echo '<div class="icon-1">
                     <a href="./login.php"><button><i class="ri-user-add-line"></i></button></a>
                     <label for="">Compte</label>
-                    </div>';
+                </div>';
                 }
                 ?>
             </div>
         </div>
+        <!-- end of mobile navigation -->
+
         <!--  ====================================================================================== -->
         <p id="copy-right-conns">
             &copy;2025 Tora Corporation. Tout droit réservé.
@@ -306,6 +372,7 @@ $unique_idFetch = $_GET['unique_id'];
         </p>
     </div>
 
+    <script src="./ajax/publier-produit.js"></script>
     <!-- beginning of pagination for rating system -->
     <script>
         /* ============================================================================================================ */
@@ -441,43 +508,212 @@ $unique_idFetch = $_GET['unique_id'];
         });
         /* ============================================================================================================ */
 
-
+        // 🔹 Sous-catégories regroupées par grande catégorie
         const subCategories = {
-            telephone_ablettes: ["Téléphone Portable", "Accesoires pour téléphone & Tablettes", "Montre Intelligente & Traqueurs", "Tablettes"],
-            electronique: ["Accesoire et Fourniture pour Electronique", "Ordinateurs et PC", "Equipement TV et DVD", "Equipement Audio et Musique", "Accesoire Informatique", "Matériels Informatique", "Moniteurs d'Ordinateur", "Equipement Réseau", "Caméra photo et vidéo", "Imprimente et Scanner", "Sécurité et Surveillance", "Jeux vidéo et Console", "Logiciels"],
-            meubles_electromenagere: ["Meubles", "Fourniture de Jardin", "Accesoire de Maison", "Appareil ménagers", "Appareil de cuisine", "Cuisine et Salle à manger", "Produit chimique ménagers"],
-            mode_habillement: ["Sacs", "Vêtements", "Vêtements et Accesoires", "Bijoux", "Chaussures", "Vêtement de Mariage", "Montres"],
-            vehicules_trans: ["Voitures", "Bus et Microbus", "Matériels lourd", "Moto et scooter", "Camions et Remorquers", "Pièces et Accesoire du véhicule", "Motomarine et Bateau", "Service Automobile"],
-            agriculture_alimentation: ["Aliments, supplements et grains", "Betails et volaille", "Répas et Boissons", "Machine et equipement agricole"],
-            proprietes: ["Nouvelle construction", "Maison et Appartement à louer", "Maison et Appartement à vendre", "Terrains et Parcelles à louer", "Terrains et Parcelles à vendre", "Proprietes commerciale à louer", "Proprietes commerciale à vendre", "Centre et lieux d'evenements", "Location courte"],
-            sante_beaute: ["Bain et corps", "Parfums", "Beauté de cheveux", "Maquillages", "Soin dela peau", "Outils et Accesoires", "Vitamines et supplements"],
-            art_sport_plein_air: ["Art et Bricalage", "Livres et Jeux", "Equipement de camping", "CD et DVD", "Instruments musicaux et Equipements", "Equipement sportif"],
-            bebe_enfants: ["Accesoires pour Bébé et Enfant", "Soin pour Bébé et Enfant", "Vêtement pour Enfant", "Meuble pour Enfant", "Equipement et Sécurité pour Enfant", "Chaussure pour Enfant", "Maternité et Grossesse", "Landaus et Poussettes", "Equipement de Terrain de jeux", "Jouets"],
-            animaux: ["Oiseaux", "Chats et Chatons", "Chiens et Chiots", "Poissons", "Accesoires pour les animaux de compagnie", "Autres Animaux"],
-            equipements: ["Fours Industriels", "Equipement de Frabication", "Equipement Médicale", "Equipements d'impression", "Equipements de restauration", "Equipements de Sécurité", "Equipements de salon", "Eclairage de scène et effets", "Paperterie"],
-            quincaillerie_construction: ["Matériaux de construction", "Portes", "Equipements Electrique", "Outils électrique", "Outils Manuels", "Plomberie et Approvisionnement d'eau", "Energie solaire", "Fenêtres", "Autres Articles de réparation et construction"],
-            reparation: ["Outils de Mesure et Implementation", "Pièces de réchanges pour téléphone et tablettes"],
-            autres: ["autres"]
+            telephone_tablettes: [
+                "-- Sélectionner la sous-catégorie --",
+                "Téléphone Portable",
+                "Accesoires pour téléphone et Tablettes",
+                "Montre Intelligente et Traqueurs",
+                "Tablettes"
+            ],
+            electronique: [
+                "-- Sélectionner la sous-catégorie --",
+                "Accesoire et Fourniture pour Electronique",
+                "Ordinateurs et PC",
+                "Equipement TV et DVD",
+                "Equipement Audio et Musique",
+                "Accesoire Informatique",
+                "Matériels Informatique",
+                "Moniteurs dOrdinateur",
+                "Equipement Réseau",
+                "Caméra photo et vidéo",
+                "Imprimente et Scanner",
+                "Sécurité et Surveillance",
+                "Jeux vidéo et Console",
+                "Logiciels"
+            ],
+            meubles_electromenagere: [
+                "-- Sélectionner la sous-catégorie --",
+                "Appareil ménagers",
+                "Appareil de cuisine"
+            ],
+            mode_habillement: [
+                "-- Sélectionner la sous-catégorie --",
+                "Sacs",
+                "Vêtements",
+                "Vêtements et Accesoires",
+                "Bijoux",
+                "Chaussures",
+                "Vêtement de Mariage",
+                "Montres"
+            ],
+            vehicules_trans: [
+                "-- Sélectionner la sous-catégorie --",
+                "Voitures",
+                "Bus et Microbus",
+                "Matériels lourd",
+                "Moto et scooter",
+                "Camions et Remorquers",
+                "Pièces et Accesoire du véhicule",
+                "Motomarine et Bateau",
+                "Service Automobile"
+            ],
+            sante_beaute: [
+                "-- Sélectionner la sous-catégorie --",
+                "Parfums",
+                "Beauté de cheveux",
+                "Maquillages",
+                "Soin dela peau",
+                "Vitamines et supplements"
+            ],
+            art_sport_plein_air: [
+                "-- Sélectionner la sous-catégorie --",
+                "Instruments musicaux et Equipements",
+                "Equipement sportif"
+            ],
+            bebe_enfants: [
+                "-- Sélectionner la sous-catégorie --",
+                "Vêtement pour Enfant",
+                "Chaussure pour Enfant",
+                "Landaus et Poussettes",
+                "Jouets"
+            ],
+            animaux: [
+                "-- Sélectionner la sous-catégorie --",
+                "Oiseaux",
+                "Chats et Chatons",
+                "Chiens et Chiots",
+                "Poissons",
+                "Accesoires pour les animaux de compagnie"
+            ],
+            equipements: [
+                "-- Sélectionner la sous-catégorie --",
+                "Equipement Médicale",
+                "Equipements dimpression",
+                "Equipements de restauration",
+                "Equipements de Sécurité",
+                "Equipements de salon",
+                "Equipements d'électricité",
+                "Eclairage de scène et effets",
+                "Equipements de Magasin"
+            ],
+            quincaillerie_construction: [
+                "-- Sélectionner la sous-catégorie --",
+                "Matériaux de construction",
+                "Outils électrique",
+                "Outils Manuels",
+                "Plomberie et Approvisionnement deau",
+                "Energie solaire"
+            ],
+            reparation: [
+                "-- Sélectionner la sous-catégorie --",
+                "Pièces de réchanges pour téléphone et tablettes"
+            ],
+            autres: [
+                "-- Sélectionner la sous-catégorie --",
+                "Autres"
+            ]
         };
 
+        // 🔹 Marques populaires par sous-catégorie
+        const brands = {
+            "telephone-portable": ["Samsung", "Apple", "Huawei", "Infinix", "Tecno", "Nokia", "Xiaomi", "OnePlus", "Oppo", "Vivo"],
+            "accesoires-pour-telephone-et-tablettes": ["Anker", "Baseus", "Aukey", "Ugreen", "Belkin"],
+            "montre-intelligente-et-traqueurs": ["Apple Watch", "Samsung Galaxy Watch", "Xiaomi Mi Band", "Fitbit", "Garmin"],
+            "tablettes": ["Samsung", "Apple iPad", "Lenovo", "Huawei", "Amazon Fire"],
+
+            "accesoire-et-fourniture-pour-electronique": ["Belkin", "Anker", "Logitech", "TP-Link"],
+            "ordinateurs-et-pc": ["HP", "Dell", "Lenovo", "Apple Macbook", "Asus", "Acer", "MSI"],
+            "equipement-tv-et-dvd": ["LG", "Samsung", "Sony", "Panasonic", "Philips"],
+            "equipement-audio-et-musique": ["Sony", "JBL", "Bose", "Beats", "Yamaha"],
+            "accesoire-informatique": ["Logitech", "Razer", "Corsair", "SteelSeries", "Microsoft"],
+            "materiels-informatique": ["HP", "Dell", "Asus", "Acer", "MSI"],
+            "moniteurs-dordinateur": ["Samsung", "LG", "Dell", "AOC", "BenQ"],
+            "equipement-reseau": ["Cisco", "TP-Link", "Netgear", "D-Link", "MikroTik"],
+            "camera-photo-et-video": ["Canon", "Nikon", "Sony", "Fujifilm", "GoPro"],
+            "imprimente-et-scanner": ["HP", "Canon", "Epson", "Brother"],
+            "securite-et-surveillance": ["Hikvision", "Dahua", "Arlo", "Ring", "Nest"],
+            "jeux-video-et-console": ["Sony PlayStation", "Microsoft Xbox", "Nintendo Switch"],
+            "logiciels": ["Microsoft", "Adobe", "Autodesk", "Corel"],
+
+            "appareil-menagers": ["LG", "Samsung", "Whirlpool", "Bosch", "Hisense"],
+            "appareil-de-cuisine": ["Philips", "Moulinex", "Kenwood", "Tefal", "KitchenAid"],
+
+            "sacs": ["Louis Vuitton", "Gucci", "Chanel", "Prada", "Hermès"],
+            "vetements": ["Zara", "H&M", "Nike", "Adidas", "Uniqlo"],
+            "vetements-et-accesoires": ["Gucci", "Versace", "Dolce & Gabbana", "Burberry"],
+            "bijoux": ["Cartier", "Tiffany & Co.", "Swarovski", "Pandora"],
+            "chaussures": ["Nike", "Adidas", "Puma", "Balenciaga", "Gucci"],
+            "vetement-de-mariage": ["Pronovias", "Vera Wang", "Rosa Clará"],
+            "montres": ["Rolex", "Casio", "Omega", "Tag Heuer", "Fossil"],
+
+            "voitures": ["Toyota", "Mercedes", "BMW", "Hyundai", "Nissan", "Honda", "Ford", "Volkswagen"],
+            "bus-et-microbus": ["Toyota", "Mercedes-Benz", "Hyundai", "Isuzu"],
+            "materiels-lourd": ["Caterpillar", "Komatsu", "JCB", "Hitachi"],
+            "moto-et-scooter": ["Honda", "Yamaha", "Suzuki", "Kawasaki", "Bajaj"],
+            "camions-et-remorquers": ["Volvo", "Scania", "Mercedes-Benz", "MAN"],
+            "pieces-et-accesoire-du-vehicule": ["Bosch", "Denso", "NGK", "Michelin", "Bridgestone"],
+            "motomarine-et-bateau": ["Yamaha", "Sea-Doo", "Kawasaki", "Bayliner"],
+            "service-automobile": ["Shell", "Total", "Castrol", "Mobil"],
+
+            "parfums": ["Dior", "Chanel", "Gucci", "Yves Saint Laurent", "Armani"],
+            "beaute-de-cheveux": ["L'Oréal", "Garnier", "Pantene", "Head & Shoulders"],
+            "maquillages": ["Maybelline", "MAC", "L'Oréal", "Revlon", "Fenty Beauty"],
+            "soin-dela-peau": ["Nivea", "Neutrogena", "Olay", "Clinique", "The Ordinary"],
+            "vitamines-et-supplements": ["Centrum", "Nature Made", "NOW Foods", "Solgar"],
+
+            "instruments-musicaux-et-equipements": ["Yamaha", "Fender", "Gibson", "Roland", "Casio"],
+            "equipement-sportif": ["Nike", "Adidas", "Puma", "Under Armour"],
+
+            "vetement-pour-enfant": ["Carter's", "OshKosh", "H&M Kids", "Zara Kids"],
+            "chaussure-pour-enfant": ["Nike Kids", "Adidas Kids", "Puma Kids"],
+            "landaus-et-poussettes": ["Chicco", "Graco", "Cybex", "Bugaboo"],
+            "jouets": ["Lego", "Mattel", "Hasbro", "Fisher-Price", "Playmobil"],
+
+            "oiseaux": ["Kaytee", "Hartz"],
+            "chats-et-chatons": ["Royal Canin", "Whiskas", "Purina"],
+            "chiens-et-chiots": ["Pedigree", "Royal Canin", "Purina", "Hill’s"],
+            "poissons": ["Tetra", "Fluval", "Aqueon"],
+            "accesoires-pour-les-animaux-de-compagnie": ["Kong", "Trixie", "PetSafe"],
+
+            "equipement-medicale": ["Philips Healthcare", "GE Healthcare", "Siemens Healthineers", "Mindray"],
+            "equipements-dimpression": ["Canon", "HP", "Epson", "Xerox"],
+            "equipements-de-restauration": ["Robot Coupe", "KitchenAid", "Hobart"],
+            "equipements-de-securite": ["Honeywell", "3M", "Dräger"],
+            "equipements-de-salon": ["Remington", "Philips", "Wahl"],
+            "equipements-delectricite": ["Schneider Electric", "ABB", "Siemens"],
+            "eclairage-de-scene-et-effets": ["Chauvet", "ADJ", "Martin"],
+            "equipements-de-magasin": ["Zebra", "Honeywell"],
+
+            "materiaux-de-construction": ["Lafarge", "Dangote Cement", "Holcim"],
+            "outils-electrique": ["Bosch", "Makita", "DeWalt", "Black & Decker"],
+            "outils-manuels": ["Stanley", "Craftsman", "Klein Tools"],
+            "plomberie-et-approvisionnement-deau": ["Grohe", "Hansgrohe", "Geberit"],
+            "energie-solaire": ["SMA", "Huawei Solar", "JinkoSolar", "Trina Solar"],
+
+            "pieces-de-rechanges-pour-telephone-et-tablettes": ["Samsung Parts", "iFixit", "Apple Parts", "Xiaomi Parts"],
+            "autres": ["Autres"],
+        };
 
 
         const categorieSelect = document.getElementById("categorie");
         const sousCategorieSelect = document.getElementById("sous-categorie");
+        const marqueSelect = document.getElementById("marque-selector");
 
+        // 🔹 Quand une catégorie est choisie → on charge ses sous-catégories
         categorieSelect.addEventListener("change", function() {
             const selected = this.value;
-            // Clear existing options
             sousCategorieSelect.innerHTML = "";
 
             if (subCategories[selected]) {
                 subCategories[selected].forEach(sub => {
                     const option = document.createElement("option");
                     option.value = sub
-                        .normalize("NFD") // Break accented letters into base + diacritics
-                        .replace(/[\u0300-\u036f]/g, "") // Remove the diacritics
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
                         .toLowerCase()
-                        .replace(/\s+/g, "-"); // Replace spaces with hyphens
+                        .replace(/\s+/g, "-");
 
                     option.textContent = sub;
                     sousCategorieSelect.appendChild(option);
@@ -487,11 +723,30 @@ $unique_idFetch = $_GET['unique_id'];
                 defaultOption.textContent = "-- Choisir une catégorie d'abord --";
                 sousCategorieSelect.appendChild(defaultOption);
             }
+
+            // Reset marque aussi
+            marqueSelect.innerHTML = "<option value=''>-- marque ici --</option>";
+        });
+
+        // 🔹 Quand une sous-catégorie est choisie → on charge ses marques
+        sousCategorieSelect.addEventListener("change", function() {
+            const selectedSub = this.value;
+            marqueSelect.innerHTML = "";
+
+            if (brands[selectedSub]) {
+                brands[selectedSub].forEach(marque => {
+                    const option = document.createElement("option");
+                    option.value = marque.toLowerCase().replace(/\s+/g, "-");
+                    option.textContent = marque;
+                    marqueSelect.appendChild(option);
+                });
+            } else {
+                const defaultOption = document.createElement("option");
+                defaultOption.textContent = "-- Pas de marque disponible --";
+                marqueSelect.appendChild(defaultOption);
+            }
         });
     </script>
-    <!-- end of pagination for rating system -->
-    <!-- <script src="./ajax/afficher-produit-pub.js"></script> -->
-    <script src="./ajax/publier-produit.js"></script>
 
 </body>
 

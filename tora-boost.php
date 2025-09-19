@@ -1,53 +1,27 @@
 <?php
 session_start();
+
 require_once("./php/config.php");
 require_once("./php/view_format.php");
-
-
-$current_user = $_COOKIE['user_unique_id_session'];
-$other_user   = $_GET['unique_id'] ?? '';
-
-if (!empty($other_user)) {
-    $sql_update = "
-        UPDATE conversation
-        SET read_mark = 0
-        WHERE sender_unique_id = :other_user
-          AND receiver_unique_id = :current_user
-          AND read_mark = 1
-    ";
-    $stmt_update = $pdo->prepare($sql_update);
-    $stmt_update->execute([
-        ":other_user"   => $other_user,
-        ":current_user" => $current_user
-    ]);
-}
-
-
-$user_unique_id = htmlspecialchars($_GET['unique_id']);
-$url = htmlspecialchars($_GET['url']);
-$fullUrl = $url;
 
 if (!isset($_SESSION['user_unique_id_session']) && !isset($_COOKIE['user_unique_id_session'])) {
     header("Location: ./");
     exit();
 }
 
-$user_select = "SELECT * FROM user_accounts WHERE user_unique_id = ? OR user_unique_id = ?";
-$query_select = $pdo->prepare($user_select);
-$query_select->execute([$_SESSION['user_unique_id_session'], $_COOKIE['user_unique_id_session']]);
-$result_select = $query_select->fetch(PDO::FETCH_ASSOC);
+$_SESSION['user_unique_id_session'] = $_COOKIE['user_unique_id_session'];
 
-if (($result_select['user_category'] == "none" && $result_select['contact_phone'] == "0") || ($result_select['user_category'] == "none" || $result_select['contact_phone'] == "0")) {
-    header("Location: account-details.php");
-}
+$id = htmlspecialchars($_GET["unique_id"]);
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
+    <title>Tora Express</title>
 
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/mobile-format.css">
@@ -57,7 +31,7 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
     <meta name="description" content="Vendez vos produits avec toute sécurité et prix abordable">
     <meta name="keywords" content="Vente, Achat, Tora Corporation">
     <meta name="author" content="Tora Corporation">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="index, follow">
 
     <!-- Open Graph / Facebook / WhatsApp -->
     <meta property="og:title" content="Tora Corporation">
@@ -76,10 +50,10 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
     <meta name="twitter:creator" content="@YourTwitterHandle">
 
     <!-- Favicon -->
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
 </head>
 
-<body onload="scrollToBottom()">
+<body>
     <div class="container2">
         <!-- beginning of navigation bar -->
         <div class="before-navigation-add">
@@ -87,52 +61,109 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                 <a href="./">
                     <h3>Tora Market</h3>
                 </a>
-                <a href="./profile.php"><button><i class="ri-settings-4-line"></i></button></a>
+                <a href="./profile.php" style="color: #000;"><button><i class="ri-settings-4-line"></i></button></a>
             </div>
         </div>
         <!-- end of navigation bar -->
-        <div class="chat-card-user-list">
-            <div class="users-card">
-                <?php
-                $sql_user = "SELECT * FROM user_accounts WHERE user_unique_id = ?";
-                $query_user = $pdo->prepare($sql_user);
-                $query_user->execute([$user_unique_id]);
-                $res_user = $query_user->fetch();
-                ?>
-                <div class="conversation-profile">
-                    <a href="./chat.php" type="name" style="text-decoration: none;color: black;"><i class="ri-arrow-left-fill"></i></a>
-                    <!--  <img src="./assets/images/image1.jpeg" alt=""> -->
-                    <a href="#" type="name" style="text-decoration: none;color: black;">
-                        <h3><?php echo $res_user['user_name']; ?></h3>
-                    </a>
-                </div>
-                <!--  beginning of conversations -->
-                <div class="conversation-place" id="chat-container">
-                    <!-- <p id="test"></p> -->
-                </div>
-                <!--  end of conversations -->
-                <!-- beginning of input fileds -->
-                <div class="input-msg">
-                    <div class="image-place">
-                        <img src="./assets/images/image1.jpeg" class="imagePreview" alt="">
-                    </div>
-                    <form action="#" id="msgSentForm">
-                        <input type="text" name="sender_id" value="<?php echo $res_user['user_unique_id']; ?>" hidden>
-                        <?php if (!empty($fullUrl)) {
-                            echo '<textarea name="message" id="textA" placeholder="Ecrit un message...">' . $fullUrl . '</textarea>';
-                        } else {
-                            echo '<textarea name="message" id="textA" placeholder="Ecrit un message..."></textarea>';
-                        } ?>
-                        <div class="file">
-                            <input type="file" accept="image/*" name="sent_image" id="select-file" hidden>
-                            <label for="select-file"><i class="ri-image-fill"></i></label>
-                        </div>
-                        <button id="sendButton"><i class="ri-telegram-fill"></i></button>
-                    </form>
-                </div>
-                <!-- end of input fileds -->
-            </div>
+        <!--  ========================= BEGINNING OF TORA EXPRESS ======================= -->
+        <!--  ========================= BEGINNING OF TORA EXPRESS ======================= -->
+        <div class="tora-express-card">
+            <h2>🚀 TORA BOOST – Vendez Plus Vite, Gagnez Plus !</h2>
+            <p>Vous avez publié un bon produit, mais il ne se vend pas assez vite ? Faites-le décoller avec <strong>TORA BOOST</strong>, le service de mise en avant d’annonce qui vous garantit plus de visibilité, plus de clics, et plus de ventes !</p>
+            <a href="#?id=<?php echo $id ?>"><button>Booster ce produit</button></a>
+            <hr>
+
+            <h3>🎯 Qu’est-ce que TORA BOOST ?</h3>
+            <p><strong>TORA BOOST</strong> est une fonctionnalité premium qui vous permet de :</p>
+            <ul>
+                <li>📌 Positionner votre annonce en tête des résultats de recherche</li>
+                <li>🌟 Afficher votre produit dans les sections sponsorisées</li>
+                <li>🏠 Mettre votre annonce sur la page d’accueil de l’application ou du site</li>
+                <li>👀 Multiplier les vues jusqu’à 5 fois plus qu’une annonce classique</li>
+            </ul>
+            <hr>
+
+            <h3>📈 Pourquoi utiliser TORA BOOST ?</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sans Boost</th>
+                        <th>Avec Boost 🔥</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Visibilité limitée aux recherches</td>
+                        <td>Visibilité active sur plusieurs zones stratégiques</td>
+                    </tr>
+                    <tr>
+                        <td>Vente lente</td>
+                        <td>Vente rapide (24h à 72h en moyenne)</td>
+                    </tr>
+                    <tr>
+                        <td>Moins de contacts</td>
+                        <td>Plus de messages et d’appels</td>
+                    </tr>
+                    <tr>
+                        <td>Annonce noyée dans la masse</td>
+                        <td>Mise en avant visuelle et prioritaire</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>🎯 Idéal pour les vendeurs pro, les produits saisonniers, les articles à forte concurrence, ou les besoins urgents de vente.</p>
+            <hr>
+
+            <h3>💰 Combien ça coûte ?</h3>
+            <ul>
+                <li>✅ 1 jour – 1 $</li>
+                <li>✅ 3 jours – 2,5 $</li>
+                <li>✅ 7 jours – 5 $</li>
+                <li>✅ 14 jours – 9 $</li>
+            </ul>
+            <p>Des réductions sont disponibles pour les vendeurs réguliers, boutiques et abonnés Pro.</p>
+            <hr>
+
+            <h3>⚙️ Comment activer TORA BOOST ?</h3>
+            <ol>
+                <li>Connectez-vous à votre compte vendeur</li>
+                <li>Allez dans « Mes annonces »</li>
+                <li>Choisissez l’annonce que vous souhaitez booster</li>
+                <li>Cliquez sur « Booster cette annonce »</li>
+                <li>Sélectionnez la durée et validez le paiement via Mobile Money</li>
+                <li>✨ Une fois activée, votre annonce sera mise en avant automatiquement dans les 10 minutes.</li>
+            </ol>
+            <hr>
+
+            <h3>📌 Conseils pour booster efficacement :</h3>
+            <ul>
+                <li>Ajoutez de belles photos avant d’activer le boost</li>
+                <li>Combinez le boostage avec la livraison via Tora Express pour rassurer les acheteurs</li>
+                <li>Utilisez les bons mots-clés dans le titre et la description</li>
+            </ul>
+            <hr>
+
+            <h3>👑 TORA BOOST PRO (bientôt disponible)</h3>
+            <ul>
+                <li>Boost massif de plusieurs annonces en même temps</li>
+                <li>Rapport détaillé sur les performances</li>
+                <li>Accompagnement par notre équipe marketing</li>
+            </ul>
+            <p>📩 Intéressé ? Contacte-nous via <a href="mailto:boost@toracorporation.com">boost@toracorporation.com</a></p>
+            <hr>
+
+            <h3>🙋‍♂️ Des questions ? Besoin d’aide ?</h3>
+            <ul>
+                <li>💬 Chat intégré dans l’application</li>
+                <li>📱 WhatsApp : +243 993 963 174</li>
+                <li>📧 Email : <a href="mailto:support@toracorporation.com">support@toracorporation.com</a></li>
+            </ul>
+            <hr>
+
+            <p>🚀 Avec TORA BOOST, vendez plus vite, plus efficacement et atteignez plus d’acheteurs que jamais.</p>
         </div>
+        <!--  ==================== END OF TORA EXPRESS ================= -->
+
+        <!--  ==================== END OF TORA EXPRESS ================= -->
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
                 <!-- Home Button -->
@@ -225,32 +256,23 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
         <!-- end of mobile navigation -->
 
         <!--  ====================================================================================== -->
-        <!-- <p id="copy-right-conns">&copy;2025 Tora Corporation. Tout droit réservé.
-            <br> Propulsé par <a href="https://www.amtech-co.com">Amtech technology (Amtech-co LLC | Software)</a>
-        </p> -->
+        <p id="copy-right-conns">
+            &copy;2025 Tora Corporation. Tout droit réservé.
+            <br> Propulsé par
+            <span itemprop="creator" itemscope itemtype="https://schema.org/Organization">
+                <a href="https://www.amtech-co.com" itemprop="url" rel="nofollow">
+                    <span itemprop="name">Amtech Technology (Amtech-co LLC | Software)</span>
+                </a>
+                <meta itemprop="foundingDate" content="2021">
+                <meta itemprop="address" content="Goma, Democratic Republic of the Congo">
+                <meta itemprop="email" content="contact@amtech-co.com">
+                <meta itemprop="sameAs" content="https://www.linkedin.com/company/amtechtechnology/">
+                <span itemprop="founder" itemscope itemtype="https://schema.org/Person">
+                    <meta itemprop="name" content="Audrey Mirindi">
+                </span>
+            </span>
+        </p>
     </div>
-    <script>
-        document.getElementById("chat-container").addEventListener("click", (e) => {
-            const deleteBtn = e.target.closest(".quick-action");
-            if (deleteBtn) {
-                const messageId = deleteBtn.getAttribute("data-id");
-                /* alert("Deleting message ID: " + messageId); */
-
-                // Example AJAX request to delete message
-                const xhr = new XMLHttpRequest();
-                xhr.open("POST", "php/delete-message.php", true);
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.onload = () => {
-                    if (xhr.readyState == xhr.DONE && xhr.status == 200) {
-                        alert(xhr.response);
-                    }
-                };
-                xhr.send("id=" + messageId);
-            }
-        });
-    </script>
-    <script src="./assets/js/conversation.js"></script>
-    <script src="./ajax/conversation.js"></script>
 </body>
 
 </html>

@@ -116,7 +116,7 @@ require_once("./php/config.php");
             </ul>
             <div class="border-separator"></div><br>
             <h1>🧭 TORA, c’est votre allié de confiance pour acheter, vendre et réussir.</h1><br>
-            
+
             <p>Avez-vous été satisfait par ce guide? <a href="./">Retour</a></p>
         </div>
     </div>
@@ -128,10 +128,10 @@ require_once("./php/config.php");
             <div class="card-f-1">
                 <h3>Services</h3>
                 <ul>
-                    <li><a href="#">Tora vente</a></li>
-                    <li><a href="#">Tora Aide pour client</a></li>
-                    <li><a href="#">Tora Aide pour vendeur</a></li>
-                    <li><a href="#">Soutient</a></li>
+                    <li><a href="./tora-vente.php">Tora Vente</a></li>
+                    <li><a href="./aide-acheteur.php">Tora Aide acheteur</a></li>
+                    <li><a href="./aide-vendeur.php">Tora Aide vendeur</a></li>
+                    <li><a href="./nous-soutenir.php">Nous Soutenir</a></li>
                 </ul>
             </div>
             <!-- end of card1 footer -->
@@ -139,10 +139,10 @@ require_once("./php/config.php");
             <div class="card-f-1">
                 <h3>Sécurité</h3>
                 <ul>
-                    <li><a href="#">Sécurité de vos données</a></li>
-                    <li><a href="#">Sécurité de vos conversations</a></li>
-                    <li><a href="#">Sureté de vente</a></li>
-                    <li><a href="#">Sécurité de vos achats</a></li>
+                    <li><a href="./securite-de-vos-donnees.php">Sécurité de vos données</a></li>
+                    <li><a href="./securite-des-conversations.php">Sécurité de vos conversations</a></li>
+                    <li><a href="./surete-de-vente.php">Sureté de vente</a></li>
+                    <li><a href="./securite-des-achat.php">Sécurité de vos achats</a></li>
                 </ul>
             </div>
             <!-- end of card1 footer -->
@@ -150,10 +150,10 @@ require_once("./php/config.php");
             <div class="card-f-1">
                 <h3>Entreprise</h3>
                 <ul>
-                    <li><a href="#">Qui sommes-nous?</a></li>
-                    <li><a href="#">Pourquoi nous faire confiance</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Prendre un partenariat</a></li>
+                    <li><a href="./qui-nous-sommes.php">Qui sommes-nous?</a></li>
+                    <li><a href="./nous-faire-confiance.php">Pourquoi nous faire confiance</a></li>
+                    <li><a href="./tora-faq.php">FAQ</a></li>
+                    <li><a href="./partenariat.php">Devenez Partenaire de TORA</a></li>
                 </ul>
             </div>
             <!-- end of card1 footer -->
@@ -161,8 +161,8 @@ require_once("./php/config.php");
             <div class="card-f-1">
                 <h3>Contacts</h3>
                 <ul>
-                    <li><a href="#">contact@toracorporation.com</a></li>
-                    <li><a href="#">+243 000 000 000</a></li>
+                    <li><a href="mailto:contact@toracorporation.com">contact@toracorporation.com</a></li>
+                    <li><a href="#">+243 993 963 174</a></li>
                 </ul>
                 <div class="social-medias">
                     <a href="#"><button><i class="ri-facebook-circle-fill"></i></button></a>
@@ -178,7 +178,7 @@ require_once("./php/config.php");
                 <br> Propulsé par
                 <span itemprop="creator" itemscope itemtype="https://schema.org/Organization">
                     <a href="https://www.amtech-co.com" itemprop="url" rel="sponsored">
-                        <span itemprop="name">Amtech Technology (Amtech-co LLC | Software)</span>
+                        <span itemprop="name">Amtech technology (Amtech-co LLC | Software)</span>
                     </a>
                     <meta itemprop="foundingDate" content="2021">
                     <meta itemprop="address" content="Goma, Democratic Republic of the Congo">

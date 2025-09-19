@@ -64,7 +64,7 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
       <div class="bottom-bar">
         <div class="bottom-contents">
           <a href="./">
-            <h3>Tora Corporation</h3>
+            <h3>Tora Market</h3>
           </a>
           <!-- <div class="nav-cont">
             <ul>
@@ -83,7 +83,10 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
             <div class="contents-right-nav">
               <div class="search">
                 <div class="search-first-box">
-                  <input type="text" placeholder="Filtrer par nom..." id="searchInput">
+                  <div class="srch">
+                    <input type="text" placeholder="Filtrer par nom..." id="searchInput">
+                    <button><i class="ri-search-line"></i></button>
+                  </div>
                 </div>
                 <!-- <span class="search-icon"><i class="ri-search-line"></i></span> -->
                 <!-- beginning of search-results -->
@@ -206,7 +209,10 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
       </a>
       <div class="search">
         <div class="search-first-box">
-          <input type="text" placeholder="Filtrer par nom..." class="searchInput2" id="searchInput2">
+          <div class="srch">
+            <input type="text" placeholder="Filtrer par nom..." class="searchInput2" id="searchInput2">
+            <button><i class="ri-search-line"></i></button>
+          </div>
         </div>
         <!-- <span class="search-icon"><i class="ri-search-line"></i></span> -->
         <!-- beginning of search-results -->
@@ -218,7 +224,7 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
     <div class="before-mobile-menu">
       <div class="mobile-menu">
         <div class="top-mob">
-          <h2>Tora Corporation</h2>
+          <h2>Tora Market</h2>
         </div>
         <div class="menu-contents-mob">
           <ul>
@@ -506,11 +512,25 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
                     <div class="image">
                       <a href="./<?php echo $row_prod['seo_link'] ?>"><img src="<?php echo $row_prod_image['image_link'] ?>" alt=""></a>
                       <?php
-                      if ($row_prod['etat'] == "Utilisé") {
+                      if ($row_prod['etat'] == "Occasion – Comme neuf") {
+                        echo "<span class='product-state' 
+                                                        style='
+                                                                background:rgba(32, 126, 248, 0.63);
+                                                                border:1px solid blue;
+                                                                color:white;
+                                                        '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
+                      } else if ($row_prod['etat'] == "Occasion – Bon état") {
                         echo "<span class='product-state' 
                                                         style='
                                                                 background:rgba(255, 166, 0, 0.63);
                                                                 border:1px solid orange;
+                                                                color:white;
+                                                        '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
+                      } else if ($row_prod['etat'] == "Occasion – Usé") {
+                        echo "<span class='product-state' 
+                                                        style='
+                                                                background:rgba(248, 71, 6, 0.63);
+                                                                border:1px solid red;
                                                                 color:white;
                                                         '><i class='ri-restart-line'></i> {$row_prod['etat']}</span>";
                       } else {
@@ -737,7 +757,7 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
           <ul>
             <li><a href="./qui-nous-sommes.php">Qui sommes-nous?</a></li>
             <li><a href="./nous-faire-confiance.php">Pourquoi nous faire confiance</a></li>
-            <li><a href="#">FAQ</a></li>
+            <li><a href="./tora-faq.php">FAQ</a></li>
             <li><a href="./partenariat.php">Devenez Partenaire de TORA</a></li>
           </ul>
         </div>
@@ -747,7 +767,7 @@ if (isset($_SESSION['user_unique_id_session']) || isset($_COOKIE['user_unique_id
           <h3>Contacts</h3>
           <ul>
             <li><a href="mailto:contact@toracorporation.com">contact@toracorporation.com</a></li>
-            <li><a href="#">+243 000 000 000</a></li>
+            <li><a href="#">+243 993 963 174</a></li>
           </ul>
           <div class="social-medias">
             <a href="#"><button><i class="ri-facebook-circle-fill"></i></button></a>

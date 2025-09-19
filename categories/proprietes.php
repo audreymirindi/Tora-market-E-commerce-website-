@@ -42,7 +42,7 @@
         <div class="before-navigation-add">
             <div class="navigation-bar-add">
                 <a href="../">
-                    <h3>Tora corporation</h3>
+                    <h3>Tora Market</h3>
                 </a>
                 <a href="./profile.php" style="color: #000;"><button><i class="ri-settings-4-line"></i></button></a>
             </div>

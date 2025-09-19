@@ -42,7 +42,7 @@
         <div class="before-navigation-add">
             <div class="navigation-bar-add">
                 <a href="../">
-                    <h3>Tora corporation</h3>
+                    <h3>Tora Market</h3>
                 </a>
                 <a href="./profile.php" style="color: #000;"><button><i class="ri-settings-4-line"></i></button></a>
             </div>
@@ -77,9 +77,9 @@
                 </a>
                 <!-- end of user-card -->
                 <!-- beginning of user-card -->
-                <a href="../categorie-results.php?sous-categorie=accesoire-de-maison">
+                <a href="../categorie-results.php?sous-categorie=accesoire-de-maison" class="a-user">
                     <div class="user-card">
-                        <img src="../tora icons/home-accessories-x3.png" alt="" class="a-user">
+                        <img src="../tora icons/home-accessories-x3.png" alt="">
                         <div class="det-user">
                             <h3>Accesoires de maison</h3>
                             <p>tout les Accesoires</p>
