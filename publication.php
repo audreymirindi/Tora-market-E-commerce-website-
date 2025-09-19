@@ -19,7 +19,7 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
 
 <!DOCTYPE html>
 <html lang="en">
-
+<div class="middile"></div>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -175,7 +175,7 @@ if (($result_select['user_category'] == "none" && $result_select['contact_phone'
                         </form>
                     </div>
                 </div>
-                <div class="middile"></div>
+                
                 <div class="right-add">
                     <h2>Mes Publications</h2><br><br>
                     <!-- beginning of contents -->

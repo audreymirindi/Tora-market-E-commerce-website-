@@ -43,40 +43,13 @@ $product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier le produit</title>
-
     <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="stylesheet" href="./assets/css/mobile-format.css">
     <link rel="stylesheet" href="./assets/RemixIcon_Fonts_v4.6.0/fonts/remixicon.css">
-
-    <!-- Essential SEO Meta Tags -->
-    <meta name="description" content="Vendez vos produits avec toute sécurité et prix abordable">
-    <meta name="keywords" content="Vente, Achat, Tora Corporation">
-    <meta name="author" content="Tora Corporation">
-    <meta name="robots" content="noindex, nofollow">
-
-    <!-- Open Graph / Facebook / WhatsApp -->
-    <meta property="og:title" content="Tora Corporation">
-    <meta property="og:description" content="Vendez vos produits avec toute sécurité et prix abordable">
-    <meta property="og:image" content="https://www.example.com/images/preview.jpg">
-    <meta property="og:url" content="https://www.example.com/your-page">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Tora Corporation">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="Vente en ligne">
-    <meta name="twitter:title" content="Tora Corporation">
-    <meta name="twitter:description" content="Vendez vos produits avec toute sécurité et prix abordable">
-    <meta name="twitter:image" content="https://www.example.com/images/preview.jpg">
-    <meta name="twitter:site" content="@YourTwitterHandle">
-    <meta name="twitter:creator" content="@YourTwitterHandle">
-
-    <!-- Favicon -->
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
 </head>
 
 <body>
     <div class="container2">
-        <!-- Navigation bar -->
         <div class="before-navigation-add">
             <div class="navigation-bar-add">
                 <a href="./">
@@ -95,141 +68,174 @@ $product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
                         <form action="#" id="publier_produit">
                             <div class="group-input1">
                                 <div class="input1">
-                                    <label for="">Categorie</label>
+                                    <label for="categorie">Categorie</label>
                                     <select name="categorie" id="categorie">
                                         <option value="">-- Choisir --</option>
-                                        <option value="telephone_tablettes">Téléphone & Tablettes</option>
-                                        <option value="electronique">Electronique</option>
-                                        <option value="meubles_electromenagere">Meubles & Electroménagere</option>
-                                        <option value="mode_habillement">Mode & Habillement</option>
-                                        <option value="vehicules_trans">Véhicules & Transport</option>
-                                        <option value="agriculture_alimentation">Agriculture & Alimentation</option>
-                                        <option value="proprietes">Propriétés</option>
-                                        <option value="sante_beaute">Santé & Beauté</option>
-                                        <option value="art_sport_plein_air">Art, Sport & Plein Air</option>
-                                        <option value="bebe_enfants">Bébé & Enfants</option>
-                                        <option value="animaux">Animaux</option>
-                                        <option value="equipements">Equipements</option>
-                                        <option value="quincaillerie_construction">Quincaillerie & Construction</option>
-                                        <option value="reparation">Réparation</option>
-                                        <option value="autres">Autres</option>
+                                        <option value="telephone_tablettes" <?php if ($product['categorie'] == 'telephone_tablettes') echo 'selected'; ?>>Téléphone & Tablettes</option>
+                                        <option value="electronique" <?php if ($product['categorie'] == 'electronique') echo 'selected'; ?>>Electronique</option>
+                                        <option value="meubles_electromenagere" <?php if ($product['categorie'] == 'meubles_electromenagere') echo 'selected'; ?>>Meubles & Electroménagere</option>
+                                        <option value="mode_habillement" <?php if ($product['categorie'] == 'mode_habillement') echo 'selected'; ?>>Mode & Habillement</option>
+                                        <option value="vehicules_trans" <?php if ($product['categorie'] == 'vehicules_trans') echo 'selected'; ?>>Véhicules & Transport</option>
+                                        <option value="agriculture_alimentation" <?php if ($product['categorie'] == 'agriculture_alimentation') echo 'selected'; ?>>Agriculture & Alimentation</option>
+                                        <option value="proprietes" <?php if ($product['categorie'] == 'proprietes') echo 'selected'; ?>>Propriétés</option>
+                                        <option value="sante_beaute" <?php if ($product['categorie'] == 'sante_beaute') echo 'selected'; ?>>Santé & Beauté</option>
+                                        <option value="art_sport_plein_air" <?php if ($product['categorie'] == 'art_sport_plein_air') echo 'selected'; ?>>Art, Sport & Plein Air</option>
+                                        <option value="bebe_enfants" <?php if ($product['categorie'] == 'bebe_enfants') echo 'selected'; ?>>Bébé & Enfants</option>
+                                        <option value="animaux" <?php if ($product['categorie'] == 'animaux') echo 'selected'; ?>>Animaux</option>
+                                        <option value="equipements" <?php if ($product['categorie'] == 'equipements') echo 'selected'; ?>>Equipements</option>
+                                        <option value="quincaillerie_construction" <?php if ($product['categorie'] == 'quincaillerie_construction') echo 'selected'; ?>>Quincaillerie & Construction</option>
+                                        <option value="reparation" <?php if ($product['categorie'] == 'reparation') echo 'selected'; ?>>Réparation</option>
+                                        <option value="autres" <?php if ($product['categorie'] == 'autres') echo 'selected'; ?>>Autres</option>
                                     </select>
                                 </div>
                                 <div class="input1">
-                                    <label for="">Sous-categorie</label>
+                                    <label for="sous-categorie">Sous-categorie</label>
                                     <select name="sous-categorie" id="sous-categorie">
-                                        <option value="">-- Choisir une catégorie d'abord --</option>
+                                        <?php
+                                        if (!empty($product['sous_categorie'])) {
+                                            $subCatValue = strtolower(str_replace(' ', '-', $product['sous_categorie']));
+                                            echo "<option value='{$subCatValue}' selected>{$product['sous_categorie']}</option>";
+                                        } else {
+                                            echo "<option value=''>-- Choisir une catégorie d'abord --</option>";
+                                        }
+                                        ?>
                                     </select>
                                 </div>
                             </div>
+
                             <div class="group-input1">
                                 <div class="input1">
-                                    <label for="">Marque</label>
+                                    <label for="marque-selector">Marque</label>
                                     <select name="marque" id="marque-selector">
-                                        <option value="">-- marque ici --</option>
+                                        <?php
+                                        if (!empty($product['titre'])) {
+                                            $brandValue = strtolower(str_replace(' ', '-', $product['titre']));
+                                            echo "<option value='{$brandValue}' selected>{$product['titre']}</option>";
+                                        } else {
+                                            echo "<option value=''>-- marque ici --</option>";
+                                        }
+                                        ?>
                                     </select>
                                 </div>
                                 <div class="input1">
-                                    <label for="">Nom</label>
-                                    <input type="text" name="marque2" placeholder="Nom du produit" maxlength="28">
+                                    <label for="marque2">Nom</label>
+                                    <input type="text" name="marque2" placeholder="Nom du produit" maxlength="28" value="<?php echo htmlspecialchars($product['titre']); ?>">
                                 </div>
                             </div>
+
                             <div class="group-input1">
                                 <div class="input1">
-                                    <label for="">Etat du produit</label>
-                                    <select name="etat_produit" id="">
+                                    <label for="etat_produit">Etat du produit</label>
+                                    <select name="etat_produit">
                                         <option value="">-- Choisir --</option>
-                                        <option value="Nouveau">Nouveau</option>
-                                        <option value="Occasion – Comme neuf">Occasion – Comme neuf</option>
-                                        <option value="Occasion – Bon état">Occasion – Bon état</option>
-                                        <option value="Occasion – Usé">Occasion – Usé</option>
+                                        <option value="Nouveau" <?php if ($product['etat'] == 'Nouveau') echo 'selected'; ?>>Nouveau</option>
+                                        <option value="Occasion – Comme neuf" <?php if ($product['etat'] == 'Occasion – Comme neuf') echo 'selected'; ?>>Occasion – Comme neuf</option>
+                                        <option value="Occasion – Bon état" <?php if ($product['etat'] == 'Occasion – Bon état') echo 'selected'; ?>>Occasion – Bon état</option>
+                                        <option value="Occasion – Usé" <?php if ($product['etat'] == 'Occasion – Usé') echo 'selected'; ?>>Occasion – Usé</option>
                                     </select>
                                 </div>
                                 <div class="input1">
-                                    <label for="">Prix</label>
+                                    <label for="prix">Prix</label>
                                     <div class="price" style="display: flex;">
-                                        <input type="number" name="prix" placeholder="Prix du produit" style="border-right: none;border-radius:8px 0px 0px 8px;">
-                                        <select name="currency" id="" style="border-left: none;border-radius:0px 8px 8px 0px;">
-                                            <option value="USD">USD</option>
-                                            <option value="CDF">CDF</option>
+                                        <input type="number" name="prix" placeholder="Prix du produit" style="border-right: none;border-radius:8px 0px 0px 8px;" value="<?php echo htmlspecialchars($product['prix']); ?>">
+                                        <select name="currency" style="border-left: none;border-radius:0px 8px 8px 0px;">
+                                            <option value="USD" <?php if ($product['currency'] == 'USD') echo 'selected'; ?>>USD</option>
+                                            <option value="CDF" <?php if ($product['currency'] == 'CDF') echo 'selected'; ?>>CDF</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="group-input1">
                                 <div class="input1">
-                                    <label for="">Localisation</label>
-                                    <input type="text" name="Localisation" placeholder="Localisation du produit">
+                                    <label for="Localisation">Localisation</label>
+                                    <input type="text" name="Localisation" placeholder="Localisation du produit" value="<?php echo htmlspecialchars($product['location']); ?>">
                                 </div>
                                 <div class="input1">
-                                    <label for="">Livraison</label>
-                                    <select name="Livraison" id="">
+                                    <label for="Livraison">Livraison</label>
+                                    <select name="Livraison">
                                         <option value="">-- Choisir --</option>
-                                        <option value="Goma">Goma</option>
-                                        <option value="Goma-Bukavu">Goma-Bukavu</option>
-                                        <option value="Est RDC">Est RDC</option>
-                                        <option value="Toute la RDC">Toute la RDC</option>
-                                        <option value="Est Afrique">Est Afrique</option>
-                                        <option value="Toute l'Afrique">Toute l'Afrique</option>
+                                        <option value="Goma" <?php if ($product['delivary'] == 'Goma') echo 'selected'; ?>>Goma</option>
+                                        <option value="Goma-Bukavu" <?php if ($product['delivary'] == 'Goma-Bukavu') echo 'selected'; ?>>Goma-Bukavu</option>
+                                        <option value="Est RDC" <?php if ($product['delivary'] == 'Est RDC') echo 'selected'; ?>>Est RDC</option>
+                                        <option value="Toute la RDC" <?php if ($product['delivary'] == 'Toute la RDC') echo 'selected'; ?>>Toute la RDC</option>
+                                        <option value="Est Afrique" <?php if ($product['delivary'] == 'Est Afrique') echo 'selected'; ?>>Est Afrique</option>
+                                        <option value="Toute l'Afrique" <?php if ($product['delivary'] == "Toute l'Afrique") echo 'selected'; ?>>Toute l'Afrique</option>
                                     </select>
                                 </div>
                             </div>
+
                             <div class="group-input1">
                                 <div class="input1">
-                                    <label for="">Nombre en stock</label>
-                                    <input type="number" name="nombre_produit" placeholder="Nombre de produit en stock">
+                                    <label for="nombre_produit">Nombre en stock</label>
+                                    <input type="number" name="nombre_produit" placeholder="Nombre de produit en stock" value="<?php echo htmlspecialchars($product['stock_number']); ?>">
                                 </div>
                             </div>
+
                             <div class="input1">
-                                <label for="">Déscription</label>
-                                <textarea name="description" maxlength="370" placeholder="Déscription du produit"
-                                    rows="4" id=""></textarea>
+                                <label for="description">Déscription</label>
+                                <textarea name="description" maxlength="370" placeholder="Déscription du produit" rows="4"><?php echo htmlspecialchars($product['description']); ?></textarea>
                             </div>
+
                             <div class="input1">
-                                <label for="">Séléctionner votre photo</label>
+                                <label for="imagesSelector">Séléctionner votre photo</label>
                                 <input type="file" id="imagesSelector" name="images[]" accept="image/*" multiple onchange="checkFileLimit(this)">
                             </div>
+
                             <button id="publish-btn">Publier</button>
                         </form>
                     </div>
                 </div>
-
-                <!-- Right-side "Mes Publications" and pagination -->
                 <div class="middile"></div>
                 <div class="right-add">
                     <h2>Mes Publications</h2><br><br>
+                    <!-- beginning of contents -->
                     <div class="contents-list-add" id="contents-list-add">
                         <?php
+                        require_once("./php/config.php");
                         require_once("./php/time-format.php");
+
                         $passedTime = new passedTime();
+
                         $sql = "SELECT * FROM produit WHERE user_unique_id = ? OR user_unique_id = ? ORDER BY id DESC";
                         $query = $pdo->prepare($sql);
                         $query->execute([$_COOKIE['user_unique_id_session'], $_SESSION['user_unique_id_session']]);
                         $res = $query->fetchAll(PDO::FETCH_ASSOC);
+
                         if (count($res) > 0) {
                             foreach ($res as $row) {
+
                                 $sql2 = "SELECT * FROM imagess WHERE product_unique_id = ? LIMIT 1";
                                 $query2 = $pdo->prepare($sql2);
                                 $query2->execute([$row['unique_id']]);
                                 $res_image = $query2->fetchAll(PDO::FETCH_ASSOC);
+
                                 if (count($res_image) > 0) {
                                     foreach ($res_image as $rowImage) {
+
                         ?>
                                         <div class="card-add">
                                             <img src="<?php echo "./" . $rowImage['image_link']; ?>" alt="">
                                             <div class="description-add">
                                                 <div class="desc-desc">
-                                                    <h3><?php echo htmlspecialchars($row['titre']); ?></h3>
-                                                    <p><?php $desc = $row['description'];
-                                                        echo (strlen($desc) > 35) ? substr($desc, 0, 35) . "..." : $desc; ?></p>
+                                                    <h3><?php echo $row['titre'] ?></h3>
+                                                    <p>
+                                                        <?php
+                                                        $desc = $row['description'];
+                                                        $shortDesc = (strlen($desc) > 35) ? substr($desc, 0, 35) . "..." : $desc;
+                                                        echo $shortDesc;
+                                                        ?>
+                                                    </p>
                                                     <p class="h">
                                                         <?php
-                                                        $time = $passedTime->timeAgo($row['duree']);
                                                         if ($row['promotion'] == "Enabled") {
-                                                            echo $time . " <i class='ri-separator'></i> <span>Boosté <i class='ri-verified-badge-fill'></i></span>";
+                                                            $time = $passedTime->timeAgo($row['duree']);
+                                                            echo $time . " <i class='ri-separator'></i> " . "<span>Boosté <i class='ri-verified-badge-fill'></i></span>";
                                                         } else {
+                                                            $time = $passedTime->timeAgo($row['duree']);
                                                             echo $time;
                                                         }
+
                                                         ?>
                                                     </p>
                                                 </div>
@@ -237,14 +243,20 @@ $product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
                                             </div>
                                             <div class="list-drop-down">
                                                 <div class="drop-down-card">
-                                                    <?php if ($row['promotion'] == "Enabled"): ?>
-                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-pencil-fill"></i> Modifier</a>
-                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
-                                                    <?php else: ?>
-                                                        <a href="./tora-boost.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-rocket-2-fill"></i> Booster</a>
-                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-pencil-fill"></i> Modifier</a>
-                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id']; ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
-                                                    <?php endif; ?>
+                                                    <?php
+                                                    if ($row['promotion'] == "Enabled") {
+                                                    ?>
+                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-pencil-fill"></i> Modifier</a>
+                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
+                                                    <?php
+                                                    } else {
+                                                    ?>
+                                                        <a href="./tora-boost.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-rocket-2-fill"></i> Booster</a>
+                                                        <a href="./modifier.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-pencil-fill"></i> Modifier</a>
+                                                        <a href="./php/delete-product.php?unique_id=<?php echo $row['unique_id'] ?>"><i class="ri-delete-bin-5-fill"></i> Supprimer</a>
+                                                    <?php
+                                                    }
+                                                    ?>
                                                 </div>
                                             </div>
                                         </div>
@@ -257,11 +269,11 @@ $product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
                         }
                         ?>
                     </div>
+                    <!-- end of contents -->
                     <div id="pagination-controls2" class="pagination-controls"></div>
                 </div>
             </div>
         </div>
-
         <div class="mobile-navigation-bottom">
             <div class="buttons-icons">
                 <!-- Home Button -->
@@ -351,28 +363,14 @@ $product_images = $image_query->fetchAll(PDO::FETCH_ASSOC);
                 ?>
             </div>
         </div>
-        <!-- end of mobile navigation -->
-
-        <!--  ====================================================================================== -->
-        <p id="copy-right-conns">
-            &copy;2025 Tora Corporation. Tout droit réservé.
-            <br> Propulsé par
-            <span itemprop="creator" itemscope itemtype="https://schema.org/Organization">
-                <a href="https://www.amtech-co.com" itemprop="url" rel="sponsored">
-                    <span itemprop="name">Amtech Technology (Amtech-co LLC | Software)</span>
-                </a>
-                <meta itemprop="foundingDate" content="2021">
-                <meta itemprop="address" content="Goma, Democratic Republic of the Congo">
-                <meta itemprop="email" content="contact@amtech-co.com">
-                <meta itemprop="sameAs" content="https://www.linkedin.com/company/amtechtechnology/">
-                <span itemprop="founder" itemscope itemtype="https://schema.org/Person">
-                    <meta itemprop="name" content="Audrey Mirindi">
-                </span>
-            </span>
-        </p>
+    </div>
+    </div>
     </div>
 
-    <script src="./ajax/publier-produit.js"></script>
+    <!-- AJAX for submitting the product -->
+    <!-- <script src="./ajax/publier-produit.js"></script> -->
+
+    <!-- Pagination and dynamic category/subcategory/brand -->
     <!-- beginning of pagination for rating system -->
     <script>
         /* ============================================================================================================ */
